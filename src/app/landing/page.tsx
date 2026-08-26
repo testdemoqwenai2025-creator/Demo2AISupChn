@@ -9,7 +9,8 @@ import {
   MessageSquare, Award, Building2, Truck, Factory,
   TreePine, Recycle, Heart, Scale, Gavel,
   Smartphone, Monitor, Tablet, Cloud,
-  Github, Twitter, Linkedin, Mail
+  Github, Twitter, Linkedin, Mail,
+  Home, Timer, ArrowUpLeft, BookOpen
 } from 'lucide-react'
 
 // Types
@@ -123,7 +124,26 @@ export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [activeTestimonial, setActiveTestimonial] = useState(0)
+  const [redirectCountdown, setRedirectCountdown] = useState(5)
+  const [showBanner, setShowBanner] = useState(true)
   const heroRef = useRef<HTMLDivElement>(null)
+
+  // Auto-redirect to Home Page (Main Dashboard) after countdown
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRedirectCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          // Redirect to Home Page
+          window.location.href = '/Demo2AISupChn/'
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    
+    return () => clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -142,6 +162,61 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white overflow-x-hidden">
+      {/* 🔗 REDIRECT BANNER - Directs to Home Page (Main Dashboard) */}
+      {showBanner && (
+        <div className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 shadow-2xl">
+          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-lg animate-pulse">
+                <Home className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <span className="font-semibold text-white">Welcome to AI Supply Chain Platform</span>
+                <span className="hidden sm:inline text-blue-100 ml-2">→ Redirecting to Main Dashboard...</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              {/* Countdown Timer */}
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-white/20 rounded-full">
+                <Timer className="w-4 h-4 text-white" />
+                <span className="text-sm font-mono font-bold text-white">{redirectCountdown}s</span>
+              </div>
+              
+              {/* Go to Dashboard Button */}
+              <a
+                href="/Demo2AISupChn/"
+                className="flex items-center gap-2 px-5 py-2 bg-white text-purple-600 rounded-lg font-semibold hover:bg-blue-50 transition-all transform hover:scale-105 shadow-lg"
+              >
+                <ArrowUpLeft className="w-4 h-4" />
+                <span>Go to Dashboard</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
+              
+              {/* Dismiss Button */}
+              <button
+                onClick={() => setShowBanner(false)}
+                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+                title="Stay on this page"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+            </div>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="h-1 bg-white/30">
+            <div 
+              className="h-full bg-white transition-all duration-1000 ease-linear"
+              style={{ width: `${((5 - redirectCountdown) / 5) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+      )}
+      
+      {/* Add padding top to account for fixed banner */}
+      <div className={showBanner ? "pt-16" : ""}></div>
+
       {/* Animated Background */}
       <div className="fixed inset-0 -z-10">
         {/* Gradient Orbs */}
@@ -189,9 +264,12 @@ export default function LandingPage() {
               <button className="px-5 py-2.5 text-gray-300 hover:text-white font-medium transition-colors">
                 Sign In
               </button>
-              <button className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-medium transition-all shadow-lg shadow-purple-500/25">
-                Get Started Free
-              </button>
+              <a 
+                href="/Demo2AISupChn/"
+                className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-medium transition-all shadow-lg shadow-purple-500/25 inline-flex items-center gap-2"
+              >
+                Get Started <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
 
             {/* Mobile Menu Button */}
@@ -213,9 +291,12 @@ export default function LandingPage() {
               <a href="#testimonials" className="text-gray-300 hover:text-white py-2">Testimonials</a>
               <a href="#pricing" className="text-gray-300 hover:text-white py-2">Pricing</a>
               <hr className="border-white/10" />
-              <button className="w-full px-5 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-medium">
-                Get Started Free
-              </button>
+              <a 
+                href="/Demo2AISupChn/"
+                className="w-full px-5 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg font-medium inline-flex items-center justify-center gap-2"
+              >
+                Get Started <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
           </div>
         )}
@@ -258,17 +339,23 @@ export default function LandingPage() {
 
               {/* CTAs */}
               <div className="flex flex-wrap gap-4">
-                <button className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-semibold text-lg overflow-hidden transition-all hover:shadow-2xl hover:shadow-purple-500/30 hover:scale-105">
+                <a 
+                  href="/Demo2AISupChn/"
+                  className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-semibold text-lg overflow-hidden transition-all hover:shadow-2xl hover:shadow-purple-500/30 hover:scale-105 inline-flex items-center"
+                >
                   <span className="relative z-10 flex items-center gap-2">
-                    Start Free Trial <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    Access Dashboard <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                </button>
+                </a>
                 
-                <button className="group px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/20 rounded-xl font-semibold text-lg backdrop-blur-sm transition-all flex items-center gap-3">
+                <a 
+                  href="/Demo2AISupChn/resources/"
+                  className="group px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/20 rounded-xl font-semibold text-lg backdrop-blur-sm transition-all flex items-center gap-3 inline-flex"
+                >
                   <Play className="w-5 h-5 text-purple-400 group-hover:scale-110 transition-transform" />
-                  Watch Demo
-                </button>
+                  View Resources
+                </a>
               </div>
 
               {/* Social Proof */}
@@ -685,9 +772,12 @@ export default function LandingPage() {
                 ))}
               </ul>
 
-              <button className="w-full py-3 border border-white/20 rounded-xl font-medium hover:bg-white/5 transition-colors">
-                Get Started
-              </button>
+              <a 
+                href="/Demo2AISupChn/"
+                className="w-full py-3 border border-white/20 rounded-xl font-medium hover:bg-white/5 transition-colors inline-flex items-center justify-center gap-2"
+              >
+                Access Dashboard <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
 
             {/* Pro Tier (Featured) */}
@@ -712,9 +802,12 @@ export default function LandingPage() {
                 ))}
               </ul>
 
-              <button className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-medium hover:opacity-90 transition-opacity">
-                Start Free Trial
-              </button>
+              <a 
+                href="/Demo2AISupChn/"
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-medium hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2"
+              >
+                Start Free Trial <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
 
             {/* Enterprise Tier */}
@@ -767,12 +860,18 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-white text-gray-900 rounded-xl font-semibold text-lg hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
-              Start Free Trial <ArrowRight className="w-5 h-5" />
-            </button>
-            <button className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-xl font-semibold text-lg hover:bg-white/20 transition-colors flex items-center justify-center gap-2">
-              <MessageSquare className="w-5 h-5" /> Schedule Demo
-            </button>
+            <a 
+              href="/Demo2AISupChn/"
+              className="px-8 py-4 bg-white text-gray-900 rounded-xl font-semibold text-lg hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+            >
+              Access Dashboard <ArrowRight className="w-5 h-5" />
+            </a>
+            <a 
+              href="/Demo2AISupChn/resources/"
+              className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-xl font-semibold text-lg hover:bg-white/20 transition-colors flex items-center justify-center gap-2"
+            >
+              <BookOpen className="w-5 h-5" /> View Resources
+            </a>
           </div>
         </div>
       </section>
