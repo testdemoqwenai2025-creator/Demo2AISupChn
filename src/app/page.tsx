@@ -5,7 +5,7 @@ import {
   Shield, Activity, Brain, AlertTriangle, CheckCircle2, 
   Search, Filter, TrendingUp, TrendingDown, Minus, Eye, MessageSquare,
   BarChart3, Zap, Globe, Lock, Bot, Users, Target,
-  ArrowRight, Play, Pause, RefreshCw, Download, Settings, Bell,
+  ArrowRight, Play, Pause, RefreshCw, Download, Settings, Bell, BookOpen,
   ChevronRight, ChevronDown, ChevronUp, Star, Clock, MapPin, Building2,
   Package, Truck, Factory, Database, Cpu, Mail, Phone,
   Send, X, Plus, Edit3, Save, Calendar, FileText, Scale,
@@ -755,6 +755,8 @@ function StatusBadge({ status }: { status: string }) {
 
 // ============== MAIN APPLICATION ==============
 
+import OntologyPanel from '../components/ontology-panel'
+
 export default function CommandCenter() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
@@ -766,6 +768,7 @@ export default function CommandCenter() {
   const [showShapModal, setShowShapModal] = useState<RiskAlert | null>(null)
   const [isStreaming, setIsStreaming] = useState(true)
   const [streamedAlerts, setStreamedAlerts] = useState<RiskAlert[]>([])
+  const [showOntology, setShowOntology] = useState(false)
 
   // Simulate alert streaming
   useEffect(() => {
@@ -835,6 +838,18 @@ export default function CommandCenter() {
               </div>
               
               <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setShowOntology(true)}
+                  className="relative group"
+                  title="Knowledge Ontology - Understand platform concepts"
+                >
+                  <BookOpen className="w-5 h-5 group-hover:text-indigo-400 transition-colors" />
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-indigo-500 rounded-full text-[10px] flex items-center justify-center">
+                    ?
+                  </span>
+                </Button>
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="w-5 h-5" />
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center">
@@ -2110,6 +2125,7 @@ ${showShapModal.mitigation}`}
         </footer>
       </div>
       <Toaster />
+      <OntologyPanel isOpen={showOntology} onClose={() => setShowOntology(false)} />
     </TooltipProvider>
   )
 }
