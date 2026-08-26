@@ -1,0 +1,1419 @@
+     1→'use client'
+     2→
+     3→import React, { useState, useEffect, useMemo } from 'react'
+     4→import { 
+     5→  // Governance Icons
+     6→  Shield, Scale, Gavel, FileText, ClipboardCheck, BadgeCheck, Lock, Eye,
+     7→  // ESG Icons
+     8→  Leaf, Recycle, Thermometer, Droplets, Heart, Users, Globe2, TreePine,
+     9→  // Analytics/AI Icons
+    10→  Brain, BarChart3, TrendingUp, Cpu, Database, Zap, Activity, LineChart,
+    11→  PieChart, Radar, Sparkles, Target,
+    12→  // Customer Experience Icons
+    13→  MessageCircle, Star, ThumbsUp, Smile, Headphones, Award, Gift,
+    14→  // Case Studies Icons
+    15→  Building2, Factory, Truck, Package, Warehouse, Store,
+    16→  // Commercial Models Icons
+    17→  DollarSign, CreditCard, Percent, TrendingDown, Calculator, Coins,
+    18→  // General Icons
+    19→  ExternalLink, Clock, ArrowRight, ChevronRight, ChevronDown,
+    20→  RefreshCw, Bell, Filter, Search, BookOpen, Lightbulb,
+    21→  RSS, Newspaper, Radio, Tv, Globe, AlertTriangle,
+    22→  CheckCircle2, Info, ArrowUpRight, Download, Share2,
+    23→  Layers, Grid3x3, LayoutDashboard, Settings, Zap as Bolt
+    24→} from 'lucide-react'
+    25→
+    26→// Types
+    27→interface NewsItem {
+    28→  id: string
+    29→  title: string
+    30→  summary: string
+    31→  source: string
+    32→  category: string
+    33→  timestamp: Date
+    34→  url?: string
+    35→  impact: 'high' | 'medium' | 'low'
+    36→}
+    37→
+    38→interface ResourceSection {
+    39→  id: string
+    40→  title: string
+    41→  icon: React.ReactNode
+    42→  content: React.ReactNode
+    43→  color: string
+    44→}
+    45→
+    46→// Mock RSS Feed Data - Real supply chain and financial news simulation
+    47→const generateMockNews = (): NewsItem[] => [
+    48→  {
+    49→    id: '1',
+    50→    title: 'IMF Raises Global Growth Forecast to 3.2% for 2025',
+    51→    summary: 'International Monetary Fund revises outlook citing resilient supply chains and AI-driven efficiency gains across manufacturing sectors.',
+    52→    source: 'IMF News',
+    53→    category: 'Financial Markets',
+    54→    timestamp: new Date(Date.now() - 3600000),
+    55→    url: 'https://www.imf.org',
+    56→    impact: 'high'
+    57→  },
+    58→  {
+    59→    id: '2',
+    60→    title: 'SCO Members Agree on New Trade Corridor Standards',
+    61→    summary: 'Shanghai Cooperation Organization establishes unified digital trade documentation standards affecting 40% of world population.',
+    62→    source: 'SCO Official',
+    63→    category: 'Geopolitical',
+    64→    timestamp: new Date(Date.now() - 7200000),
+    65→    impact: 'high'
+    66→  },
+    67→  {
+    68→    id: '3',
+    69→    title: 'Fed Signals Rate Pause Amid Supply Chain Stabilization',
+    70→    summary: 'Federal Reserve notes improved logistics metrics as inflationary pressures ease from supply-side improvements.',
+    71→    source: 'Yahoo Finance',
+    72→    category: 'Financial Markets',
+    73→    timestamp: new Date(Date.now() - 10800000),
+    74→    url: 'https://finance.yahoo.com',
+    75→    impact: 'high'
+    76→  },
+    77→  {
+    78→    id: '4',
+    79→    title: 'WSJ: AI Supply Chain Platforms Secure $12B in Q1 Funding',
+    80→    summary: 'Wall Street Journal reports record venture investment in supply chain intelligence platforms, with enterprise adoption up 340%.',
+    81→    source: 'Wall Street Journal',
+    82→    category: 'Technology',
+    83→    timestamp: new Date(Date.now() - 14400000),
+    84→    url: 'https://www.wsj.com',
+    85→    impact: 'high'
+    86→  },
+    87→  {
+    88→    id: '5',
+    89→    title: 'World Economic Forum: ESG Compliance Now Top Board Priority',
+    90→    summary: 'Davos summit concludes with 89% of CEOs ranking sustainable supply chain transparency as critical business imperative.',
+    91→    source: 'WEF',
+    92→    category: 'ESG',
+    93→    timestamp: new Date(Date.now() - 18000000),
+    94→    impact: 'medium'
+    95→  },
+    96→  {
+    97→    id: '6',
+    98→    title: 'Bloomberg: Commodity Prices Stabilize on Predictive Logistics',
+    99→    summary: 'Advanced demand forecasting reduces volatility in key commodities by 23%, benefiting global manufacturers.',
+   100→    source: 'Bloomberg',
+   101→    category: 'Commodities',
+   102→    timestamp: new Date(Date.now() - 21600000),
+   103→    impact: 'medium'
+   104→  },
+   105→  {
+   106→    id: '7',
+   107→    title: 'Reuters: Semiconductor Supply Chain Reaches Historic Efficiency',
+   108→    summary: 'AI-powered coordination reduces chip delivery times by 45%, addressing chronic shortages in tech manufacturing.',
+   109→    source: 'Reuters',
+   110→    category: 'Technology',
+   111→    timestamp: new Date(Date.now() - 25200000),
+   112→    impact: 'high'
+   113→  },
+   114→  {
+   115→    id: '8',
+   116→    title: 'EU Announces Digital Product Passport Mandate for 2026',
+   117→    summary: 'New regulation requires full supply chain traceability for all products sold in European markets.',
+   118→    source: 'EU Commission',
+   119→    category: 'Regulatory',
+   120→    timestamp: new Date(Date.now() - 28800000),
+   121→    impact: 'high'
+   122→  },
+   123→  {
+   124→    id: '9',
+   125→    title: 'CNBC: Supply Chain AI Market to Reach $85B by 2028',
+   126→    summary: 'Market analysis shows compound annual growth rate of 42% in AI-driven supply chain solutions.',
+   127→    source: 'CNBC',
+   128→    category: 'Markets',
+   129→    timestamp: new Date(Date.now() - 32400000),
+   130→    impact: 'medium'
+   131→  },
+   132→  {
+   133→    id: '10',
+   134→    title: 'FT: Carbon Tracking Becomes Mandatory for Global Shipping',
+   135→    summary: 'International Maritime Organization mandates real-time emissions reporting for all commercial vessels.',
+   136→    source: 'Financial Times',
+   137→    category: 'ESG',
+   138→    timestamp: new Date(Date.now() - 36000000),
+   139→    impact: 'medium'
+   140→  },
+   141→  {
+   142→    id: '11',
+   143→    title: 'Nikkei: Asian Manufacturing Index Hits 18-Month High',
+   144→    summary: 'Regional PMI data shows strongest expansion since mid-2023, driven by electronics and automotive sectors.',
+   145→    source: 'Nikkei',
+   146→    category: 'Economics',
+   147→    timestamp: new Date(Date.now() - 39600000),
+   148→    impact: 'medium'
+   149→  },
+   150→  {
+   151→    id: '12',
+   152→    title: 'Forbes: Top 50 Supply Chain Innovators of 2025 Revealed',
+   153→    summary: 'Annual ranking highlights companies leveraging AI, blockchain, and IoT for operational excellence.',
+   154→    source: 'Forbes',
+   155→    category: 'Business',
+   156→    timestamp: new Date(Date.now() - 43200000),
+   157→    impact: 'low'
+   158→  }
+   159→]
+   160→
+   161→// Financial Data Simulation
+   162→const financialData = {
+   163→  indices: [
+   164→    { name: 'S&P 500', value: '5,894.16', change: '+0.84%', positive: true },
+   165→    { name: 'NASDAQ', value: '19,245.32', change: '+1.24%', positive: true },
+   166→    { name: 'DOW JONES', value: '43,245.87', change: '+0.52%', positive: true },
+   167→    { name: 'FTSE 100', value: '8,234.56', change: '-0.18%', positive: false },
+   168→    { name: 'NIKKEI 225', value: '39,876.21', change: '+0.96%', positive: true },
+   169→    { name: 'SHANGHAI', value: '3,456.78', change: '+0.34%', positive: true }
+   170→  ],
+   171→  commodities: [
+   172→    { name: 'Crude Oil (WTI)', price: '$78.45', change: '+2.1%' },
+   173→    { name: 'Gold', price: '$2,654.30', change: '+0.8%' },
+   174→    { name: 'Natural Gas', price: '$3.24', change: '-1.5%' },
+   175→    { name: 'Copper', price: '$4.56/lb', change: '+3.2%' },
+   176→    { name: 'Shipping (BDI)', price: '1,456', change: '+5.7%' }
+   177→  ],
+   178→  currencies: [
+   179→    { name: 'EUR/USD', rate: '1.0856', change: '+0.2%' },
+   180→    { name: 'USD/JPY', rate: '149.34', change: '-0.4%' },
+   181→    { name: 'GBP/USD', rate: '1.2678', change: '+0.1%' },
+   182→    { name: 'USD/CNY', rate: '7.2456', change: '-0.05%' }
+   183→  ]
+   184→}
+   185→
+   186→export default function ResourcesPage() {
+   187→  const [activeTab, setActiveTab] = useState('overview')
+   188→  const [newsItems, setNewsItems] = useState<NewsItem[]>([])
+   189→  const [selectedCategory, setSelectedCategory] = useState('all')
+   190→  const [lastRefresh, setLastRefresh] = useState(new Date())
+   191→  const [isRefreshing, setIsRefreshing] = useState(false)
+   192→
+   193→  useEffect(() => {
+   194→    setNewsItems(generateMockNews())
+   195→    
+   196→    // Auto-refresh every 5 minutes
+   197→    const interval = setInterval(() => {
+   198→      refreshNews()
+   199→    }, 300000)
+   200→    
+   201→    return () => clearInterval(interval)
+   202→  }, [])
+   203→
+   204→  const refreshNews = () => {
+   205→    setIsRefreshing(true)
+   206→    setTimeout(() => {
+   207→      setNewsItems(generateMockNews())
+   208→      setLastRefresh(new Date())
+   209→      setIsRefreshing(false)
+   210→    }, 1000)
+   211→  }
+   212→
+   213→  const filteredNews = useMemo(() => {
+   214→    if (selectedCategory === 'all') return newsItems
+   215→    return newsItems.filter(item => item.category === selectedCategory)
+   216→  }, [newsItems, selectedCategory])
+   217→
+   218→  const categories = ['all', ...Array.from(new Set(newsItems.map(item => item.category)))]
+   219→
+   220→  // Governance Section Component
+   221→  const GovernanceSection = () => (
+   222→    <div className="space-y-6">
+   223→      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+   224→        {/* Risk Management Framework */}
+   225→        <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border border-blue-500/30 rounded-xl p-6 backdrop-blur-sm">
+   226→          <div className="flex items-center gap-3 mb-4">
+   227→            <Shield className="w-8 h-8 text-blue-400" />
+   228→            <h3 className="text-lg font-semibold text-white">Risk Management</h3>
+   229→          </div>
+   230→          <p className="text-gray-300 text-sm mb-4">Enterprise-grade risk assessment framework with real-time monitoring and predictive analytics.</p>
+   231→          <ul className="space-y-2">
+   232→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   233→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Operational Risk Scoring
+   234→            </li>
+   235→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   236→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Financial Exposure Analysis
+   237→            </li>
+   238→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   239→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Compliance Automation
+   240→            </li>
+   241→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   242→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Audit Trail Management
+   243→            </li>
+   244→          </ul>
+   245→        </div>
+   246→
+   247→        {/* Regulatory Compliance */}
+   248→        <div className="bg-gradient-to-br from-purple-900/20 to-purple-800/10 border border-purple-500/30 rounded-xl p-6 backdrop-blur-sm">
+   249→          <div className="flex items-center gap-3 mb-4">
+   250→            <Gavel className="w-8 h-8 text-purple-400" />
+   251→            <h3 className="text-lg font-semibold text-white">Regulatory Compliance</h3>
+   252→          </div>
+   253→          <p className="text-gray-300 text-sm mb-4">Multi-jurisdictional compliance engine supporting 150+ regulatory frameworks.</p>
+   254→          <ul className="space-y-2">
+   255→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   256→              <CheckCircle2 className="w-4 h-4 text-green-400" /> GDPR / CCPA Ready
+   257→            </li>
+   258→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   259→              <CheckCircle2 className="w-4 h-4 text-green-400" /> SOX Compliance Tools
+   260→            </li>
+   261→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   262→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Trade Export Controls
+   263→            </li>
+   264→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   265→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Sanctions Screening
+   266→            </li>
+   267→          </ul>
+   268→        </div>
+   269→
+   270→        {/* Data Governance */}
+   271→        <div className="bg-gradient-to-br from-cyan-900/20 to-cyan-800/10 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+   272→          <div className="flex items-center gap-3 mb-4">
+   273→            <Database className="w-8 h-8 text-cyan-400" />
+   274→            <h3 className="text-lg font-semibold text-white">Data Governance</h3>
+   275→          </div>
+   276→          <p className="text-gray-300 text-sm mb-4">Comprehensive data lifecycle management with quality controls and lineage tracking.</p>
+   277→          <ul className="space-y-2">
+   278→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   279→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Data Quality Metrics
+   280→            </li>
+   281→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   282→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Lineage & Provenance
+   283→            </li>
+   284→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   285→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Access Control Policies
+   286→            </li>
+   287→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   288→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Retention Schedules
+   289→            </li>
+   290→          </ul>
+   291→        </div>
+   292→
+   293→        {/* Internal Controls */}
+   294→        <div className="bg-gradient-to-br from-orange-900/20 to-orange-800/10 border border-orange-500/30 rounded-xl p-6 backdrop-blur-sm">
+   295→          <div className="flex items-center gap-3 mb-4">
+   296→            <ClipboardCheck className="w-8 h-8 text-orange-400" />
+   297→            <h3 className="text-lg font-semibold text-white">Internal Controls</h3>
+   298→          </div>
+   299→          <p className="text-gray-300 text-sm mb-4">COSO-aligned control framework with automated testing and monitoring.</p>
+   300→          <ul className="space-y-2">
+   301→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   302→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Control Testing Suite
+   303→            </li>
+   304→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   305→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Segregation of Duties
+   306→            </li>
+   307→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   308→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Exception Reporting
+   309→            </li>
+   310→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   311→              <CheckCircle2 className="w-4 h-4 text-green-400" Remediation Workflows
+   312→            </li>
+   313→          </ul>
+   314→        </div>
+   315→
+   316→        {/* Security Framework */}
+   317→        <div className="bg-gradient-to-br from-red-900/20 to-red-800/10 border border-red-500/30 rounded-xl p-6 backdrop-blur-sm">
+   318→          <div className="flex items-center gap-3 mb-4">
+   319→            <Lock className="w-8 h-8 text-red-400" />
+   320→            <h3 className="text-lg font-semibold text-white">Security Framework</h3>
+   321→          </div>
+   322→          <p className="text-gray-300 text-sm mb-4">Zero-trust architecture with advanced threat detection and response.</p>
+   323→          <ul className="space-y-2">
+   324→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   325→              <CheckCircle2 className="w-4 h-4 text-green-400" /> SOC 2 Type II Certified
+   326→            </li>
+   327→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   328→              <CheckCircle2 className="w-4 h-4 text-green-400" /> ISO 27001 Aligned
+   329→            </li>
+   330→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   331→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Encryption at Rest/Transit
+   332→            </li>
+   333→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   334→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Penetration Testing
+   335→            </li>
+   336→          </ul>
+   337→        </div>
+   338→
+   339→        {/* Audit & Assurance */}
+   340→        <div className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border border-emerald-500/30 rounded-xl p-6 backdrop-blur-sm">
+   341→          <div className="flex items-center gap-3 mb-4">
+   342→            <Scale className="w-8 h-8 text-emerald-400" />
+   343→            <h3 className="text-lg font-semibold text-white">Audit & Assurance</h3>
+   344→          </div>
+   345→          <p className="text-gray-300 text-sm mb-4">Continuous audit capabilities with real-time assurance reporting.</p>
+   346→          <ul className="space-y-2">
+   347→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   348→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Continuous Monitoring
+   349→            </li>
+   350→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   351→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Automated Evidence Collection
+   352→            </li>
+   353→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   354→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Audit Dashboard
+   355→            </li>
+   356→            <li className="flex items-center gap-2 text-sm text-gray-400">
+   357→              <CheckCircle2 className="w-4 h-4 text-green-400" /> Stakeholder Reports
+   358→            </li>
+   359→          </ul>
+   360→        </div>
+   361→      </div>
+   362→
+   363→      {/* Governance Metrics */}
+   364→      <div className="bg-black/30 border border-gray-700 rounded-xl p-6">
+   365→        <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+   366→          <BarChart3 className="w-6 h-6 text-blue-400" />
+   367→          Governance Health Metrics
+   368→        </h3>
+   369→        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+   370→          {[
+   371→            { label: 'Compliance Score', value: '98.5%', color: 'text-green-400' },
+   372→            { label: 'Risk Coverage', value: '94.2%', color: 'text-blue-400' },
+   373→            { label: 'Control Effectiveness', value: '97.1%', color: 'text-purple-400' },
+   374→            { label: 'Audit Readiness', value: '99.8%', color: 'text-cyan-400' }
+   375→          ].map((metric, idx) => (
+   376→            <div key={idx} className="text-center">
+   377→              <div className={`text-3xl font-bold ${metric.color}`}>{metric.value}</div>
+   378→              <div className="text-sm text-gray-400 mt-1">{metric.label}</div>
+   379→            </div>
+   380→          ))}
+   381→        </div>
+   382→      </div>
+   383→    </div>
+   384→  )
+   385→
+   386→  // ESG Section Component
+   387→  const ESGSection = () => (
+   388→    <div className="space-y-6">
+   389→      {/* Environmental */}
+   390→      <div className="bg-gradient-to-r from-green-900/30 via-emerald-900/20 to-teal-900/30 border border-green-500/30 rounded-xl p-8">
+   391→        <div className="flex items-center gap-4 mb-6">
+   392→          <div className="p-3 bg-green-500/20 rounded-xl">
+   393→            <Leaf className="w-10 h-10 text-green-400" />
+   394→          </div>
+   395→          <div>
+   396→            <h3 className="text-2xl font-bold text-white">Environmental Sustainability</h3>
+   397→            <p className="text-gray-400">Carbon tracking, circular economy, and green supply chain management</p>
+   398→          </div>
+   399→        </div>
+   400→
+   401→        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+   402→          <div className="bg-black/30 rounded-lg p-5">
+   403→            <Thermometer className="w-8 h-8 text-orange-400 mb-3" />
+   404→            <h4 className="font-semibold text-white mb-2">Carbon Footprint</h4>
+   405→            <div className="text-3xl font-bold text-green-400 mb-2">-34%</div>
+   406→            <p className="text-sm text-gray-400">Year-over-year reduction in Scope 1-3 emissions across monitored supply chains</p>
+   407→          </div>
+   408→          <div className="bg-black/30 rounded-lg p-5">
+   409→            <Recycle className="w-8 h-8 text-cyan-400 mb-3" />
+   410→            <h4 className="font-semibold text-white mb-2">Circular Economy</h4>
+   411→            <div className="text-3xl font-bold text-cyan-400 mb-2">67%</div>
+   412→            <p className="text-sm text-gray-400">Average material recovery rate achieved through reverse logistics optimization</p>
+   413→          </div>
+   414→          <div className="bg-black/30 rounded-lg p-5">
+   415→            <Droplets className="w-8 h-8 text-blue-400 mb-3" />
+   416→            <h4 className="font-semibold text-white mb-2">Water Stewardship</h4>
+   417→            <div className="text-3xl font-bold text-blue-400 mb-2">2.1B gal</div>
+   418→            <p className="text-sm text-gray-400">Water saved through smart sourcing and process optimization this year</p>
+   419→          </div>
+   420→        </div>
+   421→
+   422→        {/* Environmental Initiatives */}
+   423→        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+   424→          {['Net Zero 2040', 'Science-Based Targets', 'Renewable Energy 100%', 'Sustainable Packaging'].map((item, idx) => (
+   425→            <div key={idx} className="flex items-center gap-3 bg-green-500/10 border border-green-500/20 rounded-lg px-4 py-3">
+   426→              <TreePine className="w-5 h-5 text-green-400 flex-shrink-0" />
+   427→              <span className="text-sm text-gray-200">{item}</span>
+   428→            </div>
+   429→          ))}
+   430→        </div>
+   431→      </div>
+   432→
+   433→      {/* Social */}
+   434→      <div className="bg-gradient-to-r from-blue-900/30 via-indigo-900/20 to-violet-900/30 border border-blue-500/30 rounded-xl p-8">
+   435→        <div className="flex items-center gap-4 mb-6">
+   436→          <div className="p-3 bg-blue-500/20 rounded-xl">
+   437→            <Users className="w-10 h-10 text-blue-400" />
+   438→          </div>
+   439→          <div>
+   440→            <h3 className="text-2xl font-bold text-white">Social Responsibility</h3>
+   441→            <p className="text-gray-400">Labor rights, community impact, and ethical sourcing practices</p>
+   442→          </div>
+   443→        </div>
+   444→
+   445→        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+   446→          {[
+   447→            { icon: Heart, label: 'Worker Welfare', value: '99.2%', desc: 'Compliance with labor standards' },
+   448→            { icon: Users, label: 'Diversity Index', value: '0.82', desc: 'Supplier diversity score' },
+   449→            { icon: Globe2, label: 'Communities', value: '1,240+', desc: 'Community programs supported' },
+   450→            { icon: Shield, label: 'Ethical Sourcing', value: '98.7%', desc: 'Verified ethical suppliers' }
+   451→          ].map((item, idx) => (
+   452→            <div key={idx} className="bg-black/30 rounded-lg p-5 text-center">
+   453→              <item.icon className="w-8 h-8 text-blue-400 mx-auto mb-3" />
+   454→              <div className="text-2xl font-bold text-white">{item.value}</div>
+   455→              <div className="font-medium text-gray-200 mt-1">{item.label}</div>
+   456→              <div className="text-xs text-gray-400 mt-1">{item.desc}</div>
+   457→            </div>
+   458→          ))}
+   459→        </div>
+   460→      </div>
+   461→
+   462→      {/* Governance (ESG Context) */}
+   463→      <div className="bg-gradient-to-r from-purple-900/30 via-fuchsia-900/20 to-pink-900/30 border border-purple-500/30 rounded-xl p-8">
+   464→        <div className="flex items-center gap-4 mb-6">
+   465→          <div className="p-3 bg-purple-500/20 rounded-xl">
+   466→            <Scale className="w-10 h-10 text-purple-400" />
+   467→          </div>
+   468→          <div>
+   469→            <h3 className="text-2xl font-bold text-white">ESG Governance</h3>
+   470→            <p className="text-gray-400">Board oversight, disclosure frameworks, and stakeholder engagement</p>
+   471→          </div>
+   472→        </div>
+   473→
+   474→        <div className="overflow-x-auto">
+   475→          <table className="w-full text-left">
+   476→            <thead>
+   477→              <tr className="border-b border-gray-700">
+   478→                <th className="py-3 px-4 text-gray-400 font-medium">Framework</th>
+   479→                <th className="py-3 px-4 text-gray-400 font-medium">Status</th>
+   480→                <th className="py-3 px-4 text-gray-400 font-medium">Rating</th>
+   481→                <th className="py-3 px-4 text-gray-400 font-medium">Next Review</th>
+   482→              </tr>
+   483→            </thead>
+   484→            <tbody className="divide-y divide-gray-800">
+   485→              {[
+   486→                { framework: 'TCFD Recommendations', status: 'Fully Implemented', rating: 'A+', review: 'Q2 2025' },
+   487→                { framework: 'SASB Standards', status: 'Aligned', rating: 'A', review: 'Q3 2025' },
+   488→                { framework: 'UN Global Compact', status: 'Active Participant', rating: 'A+', review: 'Annual' },
+   489→                { framework: 'CDP Climate Change', status: 'A-List Achiever', rating: 'A-', review: 'Q4 2025' },
+   490→                { framework: 'EU Taxonomy', status: 'Compliant', rating: 'A', review: 'Q1 2026' }
+   491→              ].map((row, idx) => (
+   492→                <tr key={idx} className="hover:bg-white/5 transition-colors">
+   493→                  <td className="py-3 px-4 text-white font-medium">{row.framework}</td>
+   494→                  <td className="py-3 px-4"><span className="px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-xs">{row.status}</span></td>
+   495→                  <td className="py-3 px-4 text-yellow-400 font-mono">{row.rating}</td>
+   496→                  <td className="py-3 px-4 text-gray-400">{row.review}</td>
+   497→                </tr>
+   498→              ))}
+   499→            </tbody>
+   500→          </table>
+   501→        </div>
+   502→      </div>
+   503→    </div>
+   504→  )
+   505→
+   506→  // Analytics/AI Section Component
+   507→  const AnalyticsAISection = () => (
+   508→    <div className="space-y-6">
+   509→      {/* AI Capabilities Header */}
+   510→      <div className="bg-gradient-to-r from-indigo-900/40 via-purple-900/30 to-pink-900/40 border border-indigo-500/30 rounded-xl p-8 relative overflow-hidden">
+   511→        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
+   512→        <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl"></div>
+   513→        
+   514→        <div className="relative z-10">
+   515→          <div className="flex items-center gap-4 mb-4">
+   516→            <div className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg shadow-indigo-500/25">
+   517→              <Brain className="w-12 h-12 text-white" />
+   518→            </div>
+   519→            <div>
+   520→              <h3 className="text-3xl font-bold text-white">Neural Analytics Engine</h3>
+   521→              <p className="text-gray-300 text-lg">Advanced ML/AI capabilities powered by multi-model architecture</p>
+   522→            </div>
+   523→          </div>
+   524→
+   525→          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+   526→            {[
+   527→              { label: 'Models Active', value: '47', icon: Cpu },
+   528→              { label: 'Predictions/Day', value: '2.4M', icon: TrendingUp },
+   529→              { label: 'Accuracy Rate', value: '99.2%', icon: Target },
+   530→              { label: 'Latency (avg)', value: '<50ms', icon: Zap }
+   531→            ].map((stat, idx) => (
+   532→              <div key={idx} className="bg-black/40 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+   533→                <stat.icon className="w-6 h-6 text-indigo-400 mb-2" />
+   534→                <div className="text-2xl font-bold text-white">{stat.value}</div>
+   535→                <div className="text-xs text-gray-400">{stat.label}</div>
+   536→              </div>
+   537→            ))}
+   538→          </div>
+   539→        </div>
+   540→      </div>
+   541→
+   542→      {/* AI Models Grid */}
+   543→      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+   544→        {/* Demand Forecasting */}
+   545→        <div className="group bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 hover:border-blue-500/50 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10">
+   546→          <div className="flex items-start justify-between mb-4">
+   547→            <div className="p-3 bg-blue-500/20 rounded-xl group-hover:bg-blue-500/30 transition-colors">
+   548→              <LineChart className="w-8 h-8 text-blue-400" />
+   549→            </div>
+   550→            <Sparkles className="w-5 h-5 text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+   551→          </div>
+   552→          <h4 className="text-lg font-semibold text-white mb-2">Demand Forecasting</h4>
+   553→          <p className="text-sm text-gray-400 mb-4">Transformer-based time series prediction with external factor integration.</p>
+   554→          <div className="flex items-center justify-between text-xs">
+   555→            <span className="text-green-400">MAPE: 3.2%</span>
+   556→            <span className="text-gray-500">LSTM + Attention</span>
+   557→          </div>
+   558→        </div>
+   559→
+   560→        {/* Risk Prediction */}
+   561→        <div className="group bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 hover:border-red-500/50 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/10">
+   562→          <div className="flex items-start justify-between mb-4">
+   563→            <div className="p-3 bg-red-500/20 rounded-xl group-hover:bg-red-500/30 transition-colors">
+   564→              <AlertTriangle className="w-8 h-8 text-red-400" />
+   565→            </div>
+   566→            <Sparkles className="w-5 h-5 text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+   567→          </div>
+   568→          <h4 className="text-lg font-semibold text-white mb-2">Risk Intelligence</h4>
+   569→          <p className="text-sm text-gray-400 mb-4">Graph neural network analyzing supplier relationships and risk propagation.</p>
+   570→          <div className="flex items-center justify-between text-xs">
+   571→            <span className="text-green-400">Precision: 94.7%</span>
+   572→            <span className="text-gray-500">GNN + NLP</span>
+   573→          </div>
+   574→        </div>
+   575→
+   576→        {/* Supplier Scoring */}
+   577→        <div className="group bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 hover:border-green-500/50 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/10">
+   578→          <div className="flex items-start justify-between mb-4">
+   579→            <div className="p-3 bg-green-500/20 rounded-xl group-hover:bg-green-500/30 transition-colors">
+   580→              <Radar className="w-8 h-8 text-green-400" />
+   581→            </div>
+   582→            <Sparkles className="w-5 h-5 text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+   583→          </div>
+   584→          <h4 className="text-lg font-semibold text-white mb-2">Supplier Intelligence</h4>
+   585→          <p className="text-sm text-gray-400 mb-4">Multi-dimensional scoring using financial, operational, and ESG signals.</p>
+   586→          <div className="flex items-center justify-between text-xs">
+   587→            <span className="text-green-400">Coverage: 50K+</span>
+   588→            <span className="text-gray-500">Ensemble Model</span>
+   589→          </div>
+   590→        </div>
+   591→
+   592→        {/* Anomaly Detection */}
+   593→        <div className="group bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 hover:border-purple-500/50 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10">
+   594→          <div className="flex items-start justify-between mb-4">
+   595→            <div className="p-3 bg-purple-500/20 rounded-xl group-hover:bg-purple-500/30 transition-colors">
+   596→              <Activity className="w-8 h-8 text-purple-400" />
+   597→            </div>
+   598→            <Sparkles className="w-5 h-5 text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+   599→          </div>
+   600→          <h4 className="text-lg font-semibold text-white mb-2">Anomaly Detection</h4>
+   601→          <p className="text-sm text-gray-400 mb-4">Real-time outlier detection using autoencoders and statistical methods.</p>
+   602→          <div className="flex items-center justify-between text-xs">
+   603→            <span className="text-green-400">Detection: <1s</span>
+   604→            <span className="text-gray-500">Autoencoder</span>
+   605→          </div>
+   606→        </div>
+   607→
+   608→        {/* Natural Language Processing */}
+   609→        <div className="group bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 hover:border-cyan-500/50 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10">
+   610→          <div className="flex items-start justify-between mb-4">
+   611→            <div className="p-3 bg-cyan-500/20 rounded-xl group-hover:bg-cyan-500/30 transition-colors">
+   612→              <MessageCircle className="w-8 h-8 text-cyan-400" />
+   613→            </div>
+   614→            <Sparkles className="w-5 h-5 text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+   615→          </div>
+   616→          <h4 className="text-lg font-semibold text-white mb-2">Document Intelligence</h4>
+   617→          <p className="text-sm text-gray-400 mb-4">NLP pipeline for contract analysis, news extraction, and sentiment analysis.</p>
+   618→          <div className="flex items-center justify-between text-xs">
+   619→            <span className="text-green-400">NER F1: 96.8%</span>
+   620→            <span className="text-gray-500">BERT + GPT</span>
+   621→          </div>
+   622→        </div>
+   623→
+   624→        {/* Optimization Engine */}
+   625→        <div className="group bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 hover:border-orange-500/50 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10">
+   626→          <div className="flex items-start justify-between mb-4">
+   627→            <div className="p-3 bg-orange-500/20 rounded-xl group-hover:bg-orange-500/30 transition-colors">
+   628→              <Zap className="w-8 h-8 text-orange-400" />
+   629→            </div>
+   630→            <Sparkles className="w-5 h-5 text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+   631→          </div>
+   632→          <h4 className="text-lg font-semibold text-white mb-2">Optimization Engine</h4>
+   633→          <p className="text-sm text-gray-400 mb-4">Reinforcement learning for inventory, routing, and network optimization.</p>
+   634→          <div className="flex items-center justify-between text-xs">
+   635→            <span className="text-green-400">Cost Savings: 18%</span>
+   636→            <span className="text-gray-500">RL + MILP</span>
+   637→          </div>
+   638→        </div>
+   639→      </div>
+   640→
+   641→      {/* Neural Network Architecture Visualization */}
+   642→      <div className="bg-black/40 border border-gray-800 rounded-xl p-6">
+   643→        <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+   644→          <Cpu className="w-5 h-5 text-indigo-400" />
+   645→          Neural Architecture Overview
+   646→        </h4>
+   647→        <div className="relative h-64 bg-gradient-to-b from-slate-900 to-slate-950 rounded-lg overflow-hidden">
+   648→          {/* Simplified Neural Net Visualization */}
+   649→          <div className="absolute inset-0 flex items-center justify-center">
+   650→            <div className="flex items-center gap-8">
+   651→              {/* Input Layer */}
+   652→              <div className="flex flex-col gap-3">
+   653→                {[...Array(5)].map((_, i) => (
+   654→                  <div key={i} className="w-4 h-4 rounded-full bg-blue-500 animate-pulse" style={{ animationDelay: `${i * 0.1}s` }}></div>
+   655→                ))}
+   656→              </div>
+   657→              
+   658→              {/* Connections */}
+   659→              <div className="w-20 h-32 relative">
+   660→                <svg className="absolute inset-0 w-full h-full opacity-30">
+   661→                  {[...Array(15)].map((_, i) => (
+   662→                    <line 
+   663→                      key={i}
+   664→                      x1="0" 
+   665→                      y1={`${(i % 5) * 25 + 12.5}`} 
+   666→                      x2="80" 
+   667→                      y2={`${Math.floor(i / 3) * 40 + 20}`}
+   668→                      stroke="url(#gradient)" 
+   669→                      strokeWidth="1"
+   670→                    />
+   671→                  ))}
+   672→                  <defs>
+   673→                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+   674→                      <stop offset="0%" stopColor="#3b82f6" />
+   675→                      <stop offset="100%" stopColor="#a855f7" />
+   676→                    </linearGradient>
+   677→                  </defs>
+   678→                </svg>
+   679→              </div>
+   680→              
+   681→              {/* Hidden Layer 1 */}
+   682→              <div className="flex flex-col gap-4">
+   683→                {[...Array(4)].map((_, i) => (
+   684→                  <div key={i} className="w-5 h-5 rounded-full bg-purple-500 animate-pulse" style={{ animationDelay: `${i * 0.15}s` }}></div>
+   685→                ))}
+   686→              </div>
+   687→              
+   688→              {/* Hidden Layer 2 */}
+   689→              <div className="flex flex-col gap-5">
+   690→                {[...Array(3)].map((_, i) => (
+   691→                  <div key={i} className="w-6 h-6 rounded-full bg-pink-500 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }}></div>
+   692→                ))}
+   693→              </div>
+   694→              
+   695→              {/* Output Layer */}
+   696→              <div className="flex flex-col gap-8">
+   697→                {[...Array(2)].map((_, i) => (
+   698→                  <div key={i} className="w-7 h-7 rounded-full bg-green-500 animate-pulse" style={{ animationDelay: `${i * 0.25}s` }}></div>
+   699→                ))}
+   700→              </div>
+   701→            </div>
+   702→          </div>
+   703→          
+   704→          <div className="absolute bottom-2 left-4 text-xs text-gray-500">
+   705→            Multi-Layer Transformer Architecture • 175B Parameters Across Ensemble
+   706→          </div>
+   707→        </div>
+   708→      </div>
+   709→    </div>
+   710→  )
+   711→
+   712→  // Customer Experience Section
+   713→  const CustomerExperienceSection = () => (
+   714→    <div className="space-y-6">
+   715→      {/* CX Header */}
+   716→      <div className="bg-gradient-to-r from-amber-900/30 via-orange-900/20 to-rose-900/30 border border-amber-500/30 rounded-xl p-8">
+   717→        <div className="flex items-center gap-4 mb-6">
+   718→          <div className="p-4 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl">
+   719→            <Smile className="w-12 h-12 text-white" />
+   720→          </div>
+   721→          <div>
+   722→            <h3 className="text-3xl font-bold text-white">Customer Experience Platform</h3>
+   723→            <p className="text-gray-300 text-lg">Delivering exceptional experiences through intelligent personalization</p>
+   724→          </div>
+   725→        </div>
+   726→
+   727→        {/* CX Metrics */}
+   728→        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+   729→          {[
+   730→            { label: 'NPS Score', value: '78', icon: ThumbsUp, change: '+12 YoY' },
+   731→            { label: 'CSAT Rating', value: '4.8/5', icon: Star, change: '+0.3 YoY' },
+   732→            { label: 'Response Time', value: '<2min', icon: Headphones, change: '-45% faster' },
+   733→            { label: 'Retention', value: '96.4%', icon: Heart, change: '+4.2% YoY' }
+   734→          ].map((metric, idx) => (
+   735→            <div key={idx} className="bg-black/30 rounded-xl p-5">
+   736→              <metric.icon className="w-8 h-8 text-amber-400 mb-3" />
+   737→              <div className="text-3xl font-bold text-white">{metric.value}</div>
+   738→              <div className="text-sm text-gray-400">{metric.label}</div>
+   739→              <div className="text-xs text-green-400 mt-1">{metric.change}</div>
+   740→            </div>
+   741→          ))}
+   742→        </div>
+   743→      </div>
+   744→
+   745→      {/* CX Features Grid */}
+   746→      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+   747→        {/* Personalization Engine */}
+   748→        <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6">
+   749→          <MessageCircle className="w-10 h-10 text-blue-400 mb-4" />
+   750→          <h4 className="text-xl font-semibold text-white mb-3">Intelligent Personalization</h4>
+   751→          <p className="text-gray-400 mb-4">AI-driven interface adaptation that learns user preferences and optimizes workflows automatically.</p>
+   752→          <ul className="space-y-2">
+   753→            {['Adaptive UI layouts', 'Smart recommendations', 'Contextual actions', 'Preference learning'].map((item, idx) => (
+   754→              <li key={idx} className="flex items-center gap-2 text-sm text-gray-300">
+   755→                <ChevronRight className="w-4 h-4 text-blue-400" /> {item}
+   756→              </li>
+   757→            ))}
+   758→          </ul>
+   759→        </div>
+   760→
+   761→        {/* Omnichannel Support */}
+   762→        <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6">
+   763→          <Headphones className="w-10 h-10 text-green-400 mb-4" />
+   764→          <h4 className="text-xl font-semibold text-white mb-3">Omnichannel Support</h4>
+   765→          <p className="text-gray-400 mb-4">Seamless support experience across web, mobile, email, chat, and voice channels.</p>
+   766→          <ul className="space-y-2">
+   767→            {['24/7 AI chatbot', 'Live agent handoff', 'Video consultations', 'Co-browsing'].map((item, idx) => (
+   768→              <li key={idx} className="flex items-center gap-2 text-sm text-gray-300">
+   769→                <ChevronRight className="w-4 h-4 text-green-400" /> {item}
+   770→              </li>
+   771→            ))}
+   772→          </ul>
+   773→        </div>
+   774→
+   775→        {/* Self-Service Portal */}
+   776→        <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6">
+   777→          <BookOpen className="w-10 h-10 text-purple-400 mb-4" />
+   778→          <h4 className="text-xl font-semibold text-white mb-3">Self-Service Excellence</h4>
+   779→          <p className="text-gray-400 mb-4">Comprehensive knowledge base and tools empowering users to find answers instantly.</p>
+   780→          <ul className="space-y-2">
+   781→            {['Interactive tutorials', 'Video library', 'API sandbox', 'Community forums'].map((item, idx) => (
+   782→              <li key={idx} className="flex items-center gap-2 text-sm text-gray-300">
+   783→                <ChevronRight className="w-4 h-4 text-purple-400" /> {item}
+   784→              </li>
+   785→            ))}
+   786→          </ul>
+   787→        </div>
+   788→
+   789→        {/* Feedback Loop */}
+   790→        <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-6">
+   791→          <Award className="w-10 h-10 text-amber-400 mb-4" />
+   792→          <h4 className="text-xl font-semibold text-white mb-3">Continuous Improvement</h4>
+   793→          <p className="text-gray-400 mb-4">Real-time feedback collection and analysis driving product enhancements.</p>
+   794→          <ul className="space-y-2">
+   795→            {['In-app surveys', 'Usage analytics', 'Feature voting', 'Beta programs'].map((item, idx) => (
+   796→              <li key={idx} className="flex items-center gap-2 text-sm text-gray-300">
+   797→                <ChevronRight className="w-4 h-4 text-amber-400" /> {item}
+   798→              </li>
+   799→            ))}
+   800→          </ul>
+   801→        </div>
+   802→      </div>
+   803→
+   804→      {/* Testimonials */}
+   805→      <div className="bg-black/30 border border-gray-800 rounded-xl p-6">
+   806→        <h4 className="text-xl font-semibold text-white mb-6">Customer Voices</h4>
+   807→        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+   808→          {[
+   809→            {
+   810→              quote: "This platform transformed our supply chain visibility. We've reduced costs by 23% while improving supplier relationships.",
+   811→              author: "Sarah Chen",
+   812→              role: "VP Supply Chain, Fortune 500 Retailer",
+   813→              avatar: "SC"
+   814→            },
+   815→            {
+   816→              quote: "The AI predictions are remarkably accurate. We've avoided three major disruptions thanks to early warnings.",
+   817→              author: "Marcus Weber",
+   818→              role: "CPO, Global Manufacturing Corp",
+   819→              avatar: "MW"
+   820→            },
+   821→            {
+   822→              quote: "Implementation was seamless. The team's support and the platform's intuitiveness exceeded expectations.",
+   823→              author: "Priya Patel",
+   824→              role: "Director of Operations, Tech Startup",
+   825→              avatar: "PP"
+   826→            }
+   827→          ].map((testimonial, idx) => (
+   828→            <div key={idx} className="bg-slate-900/50 rounded-lg p-5">
+   829→              <div className="flex items-center gap-1 mb-3">
+   830→                {[...Array(5)].map((_, i) => (
+   831→                  <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+   832→                ))}
+   833→              </div>
+   834→              <p className="text-gray-300 text-sm italic mb-4">"{testimonial.quote}"</p>
+   835→              <div className="flex items-center gap-3">
+   836→                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+   837→                  {testimonial.avatar}
+   838→                </div>
+   839→                <div>
+   840→                  <div className="text-white font-medium text-sm">{testimonial.author}</div>
+   841→                  <div className="text-gray-500 text-xs">{testimonial.role}</div>
+   842→                </div>
+   843→              </div>
+   844→            </div>
+   845→          ))}
+   846→        </div>
+   847→      </div>
+   848→    </div>
+   849→  )
+   850→
+   851→  // Case Studies Section
+   852→  const CaseStudiesSection = () => (
+   853→    <div className="space-y-6">
+   854→      {/* Featured Case Study */}
+   855→      <div className="bg-gradient-to-r from-slate-900 via-blue-900/20 to-slate-900 border border-blue-500/30 rounded-xl overflow-hidden">
+   856→        <div className="grid md:grid-cols-2 gap-0">
+   857→          <div className="p-8">
+   858→            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-medium mb-4">
+   859→              <Star className="w-3 h-3" /> FEATURED CASE STUDY
+   860→            </div>
+   861→            <h3 className="text-2xl font-bold text-white mb-4">Global Electronics Manufacturer: End-to-End Transformation</h3>
+   862→            <p className="text-gray-300 mb-6">How a $12B electronics company achieved complete supply chain digitization, reducing lead times by 40% while increasing resilience.</p>
+   863→            
+   864→            <div className="space-y-4 mb-6">
+   865→              <div className="flex items-center justify-between">
+   866→                <span className="text-gray-400">Lead Time Reduction</span>
+   867→                <span className="text-green-400 font-semibold">40%</span>
+   868→              </div>
+   869→              <div className="w-full bg-gray-800 rounded-full h-2">
+   870→                <div className="bg-gradient-to-r from-green-500 to-emerald-400 h-2 rounded-full" style={{ width: '40%' }}></div>
+   871→              </div>
+   872→              
+   873→              <div className="flex items-center justify-between">
+   874→                <span className="text-gray-400">Cost Savings</span>
+   875→                <span className="text-blue-400 font-semibold">$180M/year</span>
+   876→              </div>
+   877→              <div className="w-full bg-gray-800 rounded-full h-2">
+   878→                <div className="bg-gradient-to-r from-blue-500 to-cyan-400 h-2 rounded-full" style={{ width: '75%' }}></div>
+   879→              </div>
+   880→              
+   881→              <div className="flex items-center justify-between">
+   882→                <span className="text-gray-400">Supplier Visibility</span>
+   883→                <span className="text-purple-400 font-semibold">Tier-N Complete</span>
+   884→              </div>
+   885→              <div className="w-full bg-gray-800 rounded-full h-2">
+   886→                <div className="bg-gradient-to-r from-purple-500 to-pink-400 h-2 rounded-full" style={{ width: '95%' }}></div>
+   887→              </div>
+   888→            </div>
+   889→
+   890→            <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+   891→              Read Full Case Study <ArrowRight className="w-4 h-4" />
+   892→            </button>
+   893→          </div>
+   894→          
+   895→          <div className="bg-gradient-to-br from-blue-900/30 to-indigo-900/30 p-8 flex items-center justify-center">
+   896→            <div className="text-center">
+   897→              <Building2 className="w-24 h-24 text-blue-400 mx-auto mb-4 opacity-80" />
+   898→              <div className="text-6xl font-bold text-white mb-2">$12B</div>
+   899→              <div className="text-gray-400">Annual Revenue</div>
+   900→              <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-300">
+   901→                <Factory className="w-4 h-4" /> 47 Facilities Worldwide
+   902→              </div>
+   903→            </div>
+   904→          </div>
+   905→        </div>
+   906→      </div>
+   907→
+   908→      {/* Case Study Cards */}
+   909→      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+   910→        {[
+   911→          {
+   912→            industry: 'Retail',
+   913→            icon: Store,
+   914→            title: 'Fortune 500 Retailer: Omnichannel Fulfillment',
+   915→            results: ['35% faster fulfillment', '22% inventory reduction', '99.2% order accuracy'],
+   916→            color: 'from-green-500/20 to-emerald-500/20',
+   917→            borderColor: 'border-green-500/30'
+   918→          },
+   919→          {
+   920→            industry: 'Automotive',
+   921→            icon: Car, // Using Car if available, else Factory
+   922→            title: 'Auto Manufacturer: Just-in-Time Optimization',
+   923→            results: ['60% less stockouts', '28% WIP reduction', '15% cost savings'],
+   924→            color: 'from-red-500/20 to-orange-500/20',
+   925→            borderColor: 'border-red-500/30'
+   926→          },
+   927→          {
+   928→            industry: 'Pharma',
+   929→            icon: Hospital,
+   930→            title: 'Pharma Company: Cold Chain Compliance',
+   931→            results: ['100% compliance rate', '45% waste reduction', 'Real-time tracking'],
+   932→            color: 'from-cyan-500/20 to-blue-500/20',
+   933→            borderColor: 'border-cyan-500/30'
+   934→          },
+   935→          {
+   936→            industry: 'Logistics',
+   937→            icon: Truck,
+   938→            title: '3PL Provider: Network Optimization',
+   939→            results: ['25% fuel savings', '30% route efficiency', 'Dynamic rerouting'],
+   940→            color: 'from-amber-500/20 to-yellow-500/20',
+   941→            borderColor: 'border-amber-500/30'
+   942→          },
+   943→          {
+   944→            industry: 'Food & Beverage',
+   945→            icon: UtensilsCrossed,
+   946→            title: 'Food Producer: Freshness Optimization',
+   947→            results: ['50% shelf-life gain', 'Zero recalls', 'Farm-to-fork trace'],
+   948→            color: 'from-lime-500/20 to-green-500/20',
+   949→            borderColor: 'border-lime-500/30'
+   950→          },
+   951→          {
+   952→            industry: 'Technology',
+   953→            icon: Cpu,
+   954→            title: 'Tech Giant: Chip Shortage Mitigation',
+   955→            results: ['90% supply security', 'Alternative sourcing', 'Demand sensing'],
+   956→            color: 'from-violet-500/20 to-purple-500/20',
+   957→            borderColor: 'border-violet-500/30'
+   958→          }
+   959→        ].map((study, idx) => (
+   960→          <div key={idx} className={`bg-gradient-to-br ${study.color} ${study.borderColor} border rounded-xl p-6 hover:scale-[1.02] transition-transform duration-300`}>
+   961→            <div className="flex items-center gap-3 mb-4">
+   962→              <div className="p-2 bg-white/10 rounded-lg">
+   963→                <study.icon className="w-6 h-6 text-white" />
+   964→              </div>
+   965→              <span className="text-sm font-medium text-gray-300">{study.industry}</span>
+   966→            </div>
+   967→            <h4 className="text-lg font-semibold text-white mb-4">{study.title}</h4>
+   968→            <ul className="space-y-2">
+   969→              {study.results.map((result, rIdx) => (
+   970→                <li key={rIdx} className="flex items-center gap-2 text-sm text-gray-300">
+   971→                  <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" /> {result}
+   972→                </li>
+   973→              ))}
+   974→            </ul>
+   975→          </div>
+   976→        ))}
+   977→      </div>
+   978→    </div>
+   979→  )
+   980→
+   981→  // Commercial Models Section
+   982→  const CommercialModelsSection = () => (
+   983→    <div className="space-y-6">
+   984→      {/* Pricing Tiers Overview */}
+   985→      <div className="bg-gradient-to-r from-emerald-900/30 via-teal-900/20 to-cyan-900/30 border border-emerald-500/30 rounded-xl p-8">
+   986→        <div className="text-center mb-8">
+   987→          <h3 className="text-3xl font-bold text-white mb-2">Flexible Commercial Models</h3>
+   988→          <p className="text-gray-300 text-lg">Scalable pricing designed for organizations of all sizes</p>
+   989→        </div>
+   990→
+   991→        <div className="grid md:grid-cols-3 gap-6">
+   992→          {/* Free Tier */}
+   993→          <div className="bg-slate-900/60 border border-slate-700 rounded-xl p-6">
+   994→            <div className="text-center mb-6">
+   995→              <h4 className="text-xl font-semibold text-white mb-2">Starter</h4>
+   996→              <div className="text-4xl font-bold text-white mb-1">Free</div>
+   997→              <p className="text-gray-400 text-sm">Perfect for evaluation</p>
+   998→            </div>
+   999→            <ul className="space-y-3 mb-6">
+  1000→              {['Up to 50 suppliers', 'Basic analytics', 'Community support', '5 AI queries/day', 'Standard reports'].map((feature, idx) => (
+  1001→                <li key={idx} className="flex items-center gap-2 text-sm text-gray-300">
+  1002→                  <CheckCircle2 className="w-4 h-4 text-green-400" /> {feature}
+  1003→                </li>
+  1004→              ))}
+  1005→            </ul>
+  1006→            <button className="w-full py-2.5 border border-slate-600 text-white rounded-lg hover:bg-slate-800 transition-colors">
+  1007→              Get Started
+  1008→            </button>
+  1009→          </div>
+  1010→
+  1011→          {/* Pro Tier */}
+  1012→          <div className="bg-gradient-to-b from-blue-900/40 to-blue-900/20 border-2 border-blue-500 rounded-xl p-6 relative">
+  1013→            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">
+  1014→              MOST POPULAR
+  1015→            </div>
+  1016→            <div className="text-center mb-6">
+  1017→              <h4 className="text-xl font-semibold text-white mb-2">Professional</h4>
+  1018→              <div className="text-4xl font-bold text-white mb-1">$99<span className="text-lg text-gray-400">/mo</span></div>
+  1019→              <p className="text-gray-400 text-sm">For growing teams</p>
+  1020→            </div>
+  1021→            <ul className="space-y-3 mb-6">
+  1022→              {['Up to 500 suppliers', 'Advanced AI models', 'Priority support', '500 AI queries/day', 'Custom dashboards', 'API access'].map((feature, idx) => (
+  1023→                <li key={idx} className="flex items-center gap-2 text-sm text-gray-300">
+  1024→                  <CheckCircle2 className="w-4 h-4 text-blue-400" /> {feature}
+  1025→                </li>
+  1026→              ))}
+  1027→            </ul>
+  1028→            <button className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+  1029→              Start Free Trial
+  1030→            </button>
+  1031→          </div>
+  1032→
+  1033→          {/* Enterprise Tier */}
+  1034→          <div className="bg-gradient-to-b from-purple-900/40 to-purple-900/20 border-2 border-purple-500 rounded-xl p-6">
+  1035→            <div className="text-center mb-6">
+  1036→              <h4 className="text-xl font-semibold text-white mb-2">Enterprise</h4>
+  1037→              <div className="text-4xl font-bold text-white mb-1">Custom</div>
+  1038→              <p className="text-gray-400 text-sm">For large organizations</p>
+  1039→            </div>
+  1040→            <ul className="space-y-3 mb-6">
+  1041→              {['Unlimited suppliers', 'Full AI suite', 'Dedicated support', 'Unlimited queries', 'Custom integrations', 'SLA guarantees', 'On-premise option'].map((feature, idx) => (
+  1042→                <li key={idx} className="flex items-center gap-2 text-sm text-gray-300">
+  1043→                  <CheckCircle2 className="w-4 h-4 text-purple-400" /> {feature}
+  1044→                </li>
+  1045→              ))}
+  1046→            </ul>
+  1047→            <button className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors">
+  1048→              Contact Sales
+  1049→            </button>
+  1050→          </div>
+  1051→        </div>
+  1052→      </div>
+  1053→
+  1054→      {/* Value Metrics */}
+  1055→      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  1056→        {[
+  1057→          { metric: '340%', label: 'Average ROI', icon: TrendingUp, desc: 'Within first year' },
+  1058→          { metric: '6 months', label: 'Avg Payback', icon: Clock, desc: 'Time to value' },
+  1059→          { metric: '$2.1M', label: 'Avg Annual Savings', icon: DollarSign, desc: 'Per enterprise client' },
+  1060→          { metric: '99.7%', label: 'Customer Retention', icon: Users, desc: 'Industry leading' }
+  1061→        ].map((item, idx) => (
+  1062→          <div key={idx} className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 text-center">
+  1063→            <item.icon className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
+  1064→            <div className="text-3xl font-bold text-white mb-1">{item.metric}</div>
+  1065→            <div className="text-sm font-medium text-gray-300">{item.label}</div>
+  1066→            <div className="text-xs text-gray-500 mt-1">{item.desc}</div>
+  1067→          </div>
+  1068→        ))}
+  1069→      </div>
+  1070→
+  1071→      {/* Implementation Options */}
+  1072→      <div className="bg-black/30 border border-gray-800 rounded-xl p-6">
+  1073→        <h4 className="text-xl font-semibold text-white mb-6">Deployment & Engagement Models</h4>
+  1074→        <div className="grid md:grid-cols-3 gap-6">
+  1075→          <div className="text-center p-4">
+  1076→            <Cloud className="w-12 h-12 text-blue-400 mx-auto mb-3" />
+  1077→            <h5 className="font-semibold text-white mb-2">Cloud SaaS</h5>
+  1078→            <p className="text-sm text-gray-400">Fully managed cloud deployment with automatic updates and scaling</p>
+  1079→          </div>
+  1080→          <div className="text-center p-4">
+  1081→            <Server className="w-12 h-12 text-green-400 mx-auto mb-3" />
+  1082→            <h5 className="font-semibold text-white mb-2">Hybrid Cloud</h5>
+  1083→            <p className="text-sm text-gray-400">Combine cloud flexibility with on-premises data residency requirements</p>
+  1084→          </div>
+  1085→          <div className="text-center p-4">
+  1086→            <Building2 className="w-12 h-12 text-purple-400 mx-auto mb-3" />
+  1087→            <h5 className="font-semibold text-white mb-2">Private Deployment</h5>
+  1088→            <p className="text-sm text-gray-400">Full on-premise or private cloud installation for maximum control</p>
+  1089→          </div>
+  1090→        </div>
+  1091→      </div>
+  1092→    </div>
+  1093→  )
+  1094→
+  1095→  // Render active section content
+  1096→  const renderContent = () => {
+  1097→    switch (activeTab) {
+  1098→      case 'governance': return <GovernanceSection />
+  1099→      case 'esg': return <ESGSection />
+  1100→      case 'analytics': return <AnalyticsAISection />
+  1101→      case 'cx': return <CustomerExperienceSection />
+  1102→      case 'case-studies': return <CaseStudiesSection />
+  1103→      case 'commercial': return <CommercialModelsSection />
+  1104→      default: return <OverviewContent />
+  1105→    }
+  1106→  }
+  1107→
+  1108→  // Overview Content
+  1109→  const OverviewContent = () => (
+  1110→    <div className="space-y-8">
+  1111→      {/* Quick Stats */}
+  1112→      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+  1113→        {[
+  1114→          { label: 'Active Users', value: '12,450+', icon: Users, color: 'text-blue-400' },
+  1115→          { label: 'Data Points', value: '2.4B+', icon: Database, color: 'text-green-400' },
+  1116→          { label: 'AI Predictions', value: '99.2%', icon: Brain, color: 'text-purple-400' },
+  1117→          { label: 'Global Coverage', value: '140+', icon: Globe, color: 'text-amber-400' }
+  1118→        ].map((stat, idx) => (
+  1119→          <div key={idx} className="bg-slate-900/50 border border-slate-800 rounded-xl p-5">
+  1120→            <stat.icon className={`w-8 h-8 ${stat.color} mb-3`} />
+  1121→            <div className="text-2xl font-bold text-white">{stat.value}</div>
+  1122→            <div className="text-sm text-gray-400">{stat.label}</div>
+  1123→          </div>
+  1124→        ))}
+  1125→      </div>
+  1126→
+  1127→      {/* Featured News */}
+  1128→      <div className="bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border border-indigo-500/30 rounded-xl p-6">
+  1129→        <div className="flex items-center justify-between mb-4">
+  1130→          <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+  1131→            <Newspaper className="w-5 h-5 text-indigo-400" />
+  1132→            Latest Supply Chain Intelligence
+  1133→          </h3>
+  1134→          <button 
+  1135→            onClick={refreshNews}
+  1136→            disabled={isRefreshing}
+  1137→            className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-800 text-white rounded-lg text-sm transition-colors"
+  1138→          >
+  1139→            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+  1140→            Refresh
+  1141→          </button>
+  1142→        </div>
+  1143→        
+  1144→        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+  1145→          {filteredNews.slice(0, 6).map((item) => (
+  1146→            <article key={item.id} className="bg-black/30 rounded-lg p-4 hover:bg-black/50 transition-colors group cursor-pointer">
+  1147→              <div className="flex items-start justify-between gap-3 mb-2">
+  1148→                <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+  1149→                  item.impact === 'high' ? 'bg-red-500/20 text-red-400' :
+  1150→                  item.impact === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+  1151→                  'bg-gray-500/20 text-gray-400'
+  1152→                }`}>
+  1153→                  {item.impact.toUpperCase()}
+  1154→                </span>
+  1155→                <span className="text-xs text-gray-500 whitespace-nowrap">
+  1156→                  {formatTimeAgo(item.timestamp)}
+  1157→                </span>
+  1158→              </div>
+  1159→              <h4 className="font-medium text-white group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
+  1160→                {item.title}
+  1161→              </h4>
+  1162→              <p className="text-sm text-gray-400 line-clamp-2">{item.summary}</p>
+  1163→              <div className="flex items-center justify-between mt-3">
+  1164→                <span className="text-xs text-gray-500">{item.source}</span>
+  1165→                <ExternalLink className="w-4 h-4 text-gray-600 group-hover:text-blue-400 transition-colors" />
+  1166→              </div>
+  1167→            </article>
+  1168→          ))}
+  1169→        </div>
+  1170→      </div>
+  1171→
+  1172→      {/* Financial Markets Widget */}
+  1173→      <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
+  1174→        <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+  1175→          <TrendingUp className="w-5 h-5 text-green-400" />
+  1176→          Global Financial Markets
+  1177→        </h3>
+  1178→        
+  1179→        {/* Indices */}
+  1180→        <div className="mb-6">
+  1181→          <h4 className="text-sm font-medium text-gray-400 mb-3">Major Indices</h4>
+  1182→          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+  1183→            {financialData.indices.map((index, idx) => (
+  1184→              <div key={idx} className="bg-black/30 rounded-lg p-3">
+  1185→                <div className="text-xs text-gray-500 mb-1">{index.name}</div>
+  1186→                <div className="text-lg font-semibold text-white">{index.value}</div>
+  1187→                <div className={`text-xs font-medium ${index.positive ? 'text-green-400' : 'text-red-400'}`}>
+  1188→                  {index.change}
+  1189→                </div>
+  1190→              </div>
+  1191→            ))}
+  1192→          </div>
+  1193→        </div>
+  1194→
+  1195→        {/* Commodities & Currencies */}
+  1196→        <div className="grid md:grid-cols-2 gap-6">
+  1197→          <div>
+  1198→            <h4 className="text-sm font-medium text-gray-400 mb-3">Key Commodities</h4>
+  1199→            <div className="space-y-2">
+  1200→              {financialData.commodities.map((commodity, idx) => (
+  1201→                <div key={idx} className="flex items-center justify-between bg-black/30 rounded px-3 py-2">
+  1202→                  <span className="text-sm text-gray-300">{commodity.name}</span>
+  1203→                  <div className="text-right">
+  1204→                    <span className="text-sm text-white font-medium mr-2">{commodity.price}</span>
+  1205→                    <span className={`text-xs ${commodity.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+  1206→                      {commodity.change}
+  1207→                    </span>
+  1208→                  </div>
+  1209→                </div>
+  1210→              ))}
+  1211→            </div>
+  1212→          </div>
+  1213→          
+  1214→          <div>
+  1215→            <h4 className="text-sm font-medium text-gray-400 mb-3">Currency Pairs</h4>
+  1216→            <div className="space-y-2">
+  1217→              {financialData.currencies.map((currency, idx) => (
+  1218→                <div key={idx} className="flex items-center justify-between bg-black/30 rounded px-3 py-2">
+  1219→                  <span className="text-sm text-gray-300">{currency.name}</span>
+  1220→                  <div className="text-right">
+  1221→                    <span className="text-sm text-white font-medium mr-2">{currency.rate}</span>
+  1222→                    <span className={`text-xs ${currency.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+  1223→                      {currency.change}
+  1224→                    </span>
+  1225→                  </div>
+  1226→                </div>
+  1227→              ))}
+  1228→            </div>
+  1229→          </div>
+  1230→        </div>
+  1231→      </div>
+  1232→
+  1233→      {/* Quick Access Grid */}
+  1234→      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+  1235→        {[
+  1236→          { tab: 'governance', icon: Scale, label: 'Governance', color: 'from-blue-600 to-blue-800' },
+  1237→          { tab: 'esg', icon: Leaf, label: 'ESG', color: 'from-green-600 to-emerald-800' },
+  1238→          { tab: 'analytics', icon: Brain, label: 'Analytics/AI', color: 'from-purple-600 to-indigo-800' },
+  1239→          { tab: 'cx', icon: Smile, label: 'Experience', color: 'from-amber-600 to-orange-800' },
+  1240→          { tab: 'case-studies', icon: Building2, label: 'Case Studies', color: 'from-cyan-600 to-teal-800' },
+  1241→          { tab: 'commercial', icon: DollarSign, label: 'Commercial', color: 'from-emerald-600 to-green-800' }
+  1242→        ].map((item, idx) => (
+  1243→          <button
+  1244→            key={idx}
+  1245→            onClick={() => setActiveTab(item.tab)}
+  1246→            className={`bg-gradient-to-br ${item.color} rounded-xl p-4 text-center hover:scale-105 transition-transform duration-200`}
+  1247→          >
+  1248→            <item.icon className="w-8 h-8 text-white mx-auto mb-2" />
+  1249→            <span className="text-sm font-medium text-white">{item.label}</span>
+  1250→          </button>
+  1251→        ))}
+  1252→      </div>
+  1253→    </div>
+  1254→  )
+  1255→
+  1256→  // Helper function for time formatting
+  1257→  const formatTimeAgo = (date: Date): string => {
+  1258→    const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+  1259→    if (seconds < 60) return `${seconds}s ago`
+  1260→    const minutes = Math.floor(seconds / 60)
+  1261→    if (minutes < 60) return `${minutes}m ago`
+  1262→    const hours = Math.floor(minutes / 60)
+  1263→    if (hours < 24) return `${hours}h ago`
+  1264→    const days = Math.floor(hours / 24)
+  1265→    return `${days}d ago`
+  1266→  }
+  1267→
+  1268→  // Tab configuration
+  1269→  const tabs = [
+  1270→    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  1271→    { id: 'governance', label: 'Governance', icon: Scale },
+  1272→    { id: 'esg', label: 'ESG', icon: Leaf },
+  1273→    { id: 'analytics', label: 'Analytics/AI', icon: Brain },
+  1274→    { id: 'cx', label: 'Customer Experience', icon: Smile },
+  1275→    { id: 'case-studies', label: 'Case Studies', icon: Building2 },
+  1276→    { id: 'commercial', label: 'Commercial Models', icon: DollarSign }
+  1277→  ]
+  1278→
+  1279→  return (
+  1280→    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+  1281→      {/* Header */}
+  1282→      <header className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-md border-b border-slate-800">
+  1283→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  1284→          <div className="flex items-center justify-between h-16">
+  1285→            <div className="flex items-center gap-4">
+  1286→              <h1 className="text-xl font-bold text-white flex items-center gap-2">
+  1287→                <BookOpen className="w-6 h-6 text-blue-400" />
+  1288→                Resources Center
+  1289→              </h1>
+  1290→              <span className="hidden sm:block text-sm text-gray-500">|</span>
+  1291→              <span className="hidden sm:block text-sm text-gray-400">Knowledge Hub & Intelligence</span>
+  1292→            </div>
+  1293→            
+  1294→            <div className="flex items-center gap-4">
+  1295→              <div className="relative">
+  1296→                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+  1297→                <input
+  1298→                  type="text"
+  1299→                  placeholder="Search resources..."
+  1300→                  className="pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 w-64"
+  1301→                />
+  1302→              </div>
+  1303→              
+  1304→              <button className="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm text-gray-300 transition-colors">
+  1305→                <Bell className="w-4 h-4" />
+  1306→                <span className="hidden sm:inline">Alerts</span>
+  1307→                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+  1308→              </button>
+  1309→            </div>
+  1310→          </div>
+  1311→        </div>
+  1312→      </header>
+  1313→
+  1314→      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  1315→        {/* Navigation Tabs */}
+  1316→        <nav className="mb-8 overflow-x-auto pb-2">
+  1317→          <div className="flex gap-2 min-w-max">
+  1318→            {tabs.map((tab) => (
+  1319→              <button
+  1320→                key={tab.id}
+  1321→                onClick={() => setActiveTab(tab.id)}
+  1322→                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+  1323→                  activeTab === tab.id
+  1324→                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
+  1325→                    : 'bg-slate-800 text-gray-400 hover:bg-slate-700 hover:text-white'
+  1326→                }`}
+  1327→              >
+  1328→                <tab.icon className="w-4 h-4" />
+  1329→                {tab.label}
+  1330→              </button>
+  1331→            ))}
+  1332→          </div>
+  1333→        </nav>
+  1334→
+  1335→        {/* Category Filter (for overview) */}
+  1336→        {activeTab === 'overview' && (
+  1337→          <div className="mb-6 flex items-center gap-4">
+  1338→            <Filter className="w-4 h-4 text-gray-500" />
+  1339→            <select
+  1340→              value={selectedCategory}
+  1341→              onChange={(e) => setSelectedCategory(e.target.value)}
+  1342→              className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+  1343→            >
+  1344→              {categories.map((cat) => (
+  1345→                <option key={cat} value={cat}>
+  1346→                  {cat === 'all' ? 'All Categories' : cat}
+  1347→                </option>
+  1348→              ))}
+  1349→            </select>
+  1350→            <span className="text-sm text-gray-500">
+  1351→              Showing {filteredNews.length} articles • Last updated: {lastRefresh.toLocaleTimeString()}
+  1352→            </span>
+  1353→          </div>
+  1354→        )}
+  1355→
+  1356→        {/* Main Content Area */}
+  1357→        <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+  1358→          {renderContent()}
+  1359→        </section>
+  1360→      </main>
+  1361→
+  1362→      {/* Footer */}
+  1363→      <footer className="mt-16 border-t border-slate-800 bg-slate-950/50">
+  1364→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  1365→          <div className="grid md:grid-cols-4 gap-8">
+  1366→            <div>
+  1367→              <h4 className="font-semibold text-white mb-4">Resources</h4>
+  1368→              <ul className="space-y-2 text-sm text-gray-400">
+  1369→                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
+  1370→                <li><a href="#" className="hover:text-white transition-colors">API Reference</a></li>
+  1371→                <li><a href="#" className="hover:text-white transition-colors">Guides & Tutorials</a></li>
+  1372→                <li><a href="#" className="hover:text-white transition-colors">Video Library</a></li>
+  1373→              </ul>
+  1374→            </div>
+  1375→            <div>
+  1376→              <h4 className="font-semibold text-white mb-4">Research</h4>
+  1377→              <ul className="space-y-2 text-sm text-gray-400">
+  1378→                <li><a href="#" className="hover:text-white transition-colors">Industry Reports</a></li>
+  1379→                <li><a href="#" className="hover:text-white transition-colors">Case Studies</a></li>
+  1380→                <li><a href="#" className="hover:text-white transition-colors">White Papers</a></li>
+  1381→                <li><a href="#" className="hover:text-white transition-colors">Webinars</a></li>
+  1382→              </ul>
+  1383→            </div>
+  1384→            <div>
+  1385→              <h4 className="font-semibold text-white mb-4">Connect</h4>
+  1386→              <ul className="space-y-2 text-sm text-gray-400">
+  1387→                <li><a href="#" className="hover:text-white transition-colors">Community Forum</a></li>
+  1388→                <li><a href="#" className="hover:text-white transition-colors">Slack Channel</a></li>
+  1389→                <li><a href="#" className="hover:text-white transition-colors">Events Calendar</a></li>
+  1390→                <li><a href="#" className="hover:text-white transition-colors">Newsletter</a></li>
+  1391→              </ul>
+  1392→            </div>
+  1393→            <div>
+  1394→              <h4 className="font-semibold text-white mb-4">Legal</h4>
+  1395→              <ul className="space-y-2 text-sm text-gray-400">
+  1396→                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+  1397→                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+  1398→                <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
+  1399→                <li><a href="#" className="hover:text-white transition-colors">Compliance</a></li>
+  1400→              </ul>
+  1401→            </div>
+  1402→          </div>
+  1403→          
+  1404→          <div className="mt-8 pt-8 border-t border-slate-800 text-center text-sm text-gray-500">
+  1405→            <p>&copy; 2025 AI Supply Chain Platform. All rights reserved. | Built for the future of supply chain intelligence.</p>
+  1406→          </div>
+  1407→        </div>
+  1408→      </footer>
+  1409→    </div>
+  1410→  )
+  1411→}
+  1412→
+  1413→// Additional icons used but not imported above
+  1414→function Car(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18 10l-2-4H8L6 10l-2.5 1.1C2.7 11.3 2 12.1 2 13v3c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg> }
+  1415→function Hospital(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg> }
+  1416→function UtensilsCrossed(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg> }
+  1417→function Cloud(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg> }
+  1418→function Server(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg> }
+  1419→

@@ -1,0 +1,1192 @@
+     1→'use client'
+     2→
+     3→import React, { useState, useEffect, useMemo, useCallback } from 'react'
+     4→import {
+     5→  Newspaper, TrendingUp, TrendingDown, Minus,
+     6→  Globe, Clock, ExternalLink, RefreshCw, Filter,
+     7→  ChevronRight, AlertTriangle, BarChart3, DollarSign,
+     8→  Activity, Zap, ArrowUpRight, ArrowDownRight, Info,
+     9→  Bell, Star, Bookmark, Share2, Search, X,
+    10→  Building2, Landmark, Ship, Factory, Package,
+    11→  Calendar, MapPin, Tag, Eye
+    12→} from 'lucide-react'
+    13→
+    14→// ============================================================================
+    15→// TYPES & INTERFACES
+    16→// ============================================================================
+    17→
+    18→interface FinancialNewsItem {
+    19→  id: string
+    20→  title: string
+    21→  summary: string
+    22→  content?: string
+    23→  source: NewsSource
+    24→  category: NewsCategory
+    25→  tags: string[]
+    26→  publishedAt: Date
+    27→  url: string
+    28→  
+    29→  // Market Impact Analysis
+    30→  impact: 'critical' | 'high' | 'medium' | 'low'
+    31→  sentiment: 'bullish' | 'bearish' | 'neutral'
+    32→  sentimentScore: number // -1 to +1
+    33→  
+    34→  // Supply Chain Relevance
+    35→  supplyChainRelevance: {
+    36→    score: number // 0-100
+    37→    affectedRegions: string[]
+    38→    affectedIndustries: string[]
+    39→    riskImplications: string[]
+    40→    opportunityIndicators: string[]
+    41→  }
+    42→  
+    43→  // Market Data (if applicable)
+    44→  marketData?: {
+    45→    relatedTicker?: string
+    46→    priceChange?: number
+    47→    volumeChange?: number
+    48→    volatilityIndex?: number
+    49→  }
+    50→  
+    51→  // AI Analysis
+    52→  aiInsights: {
+    53→    keyTakeaways: string[]
+    54→    predictedImpact: string
+    55→    confidenceLevel: number
+    56→    similarEvents: Array<{ title: string; date: string; outcome: string }>
+    57→  }
+    58→}
+    59→
+    60→type NewsSource = 
+    61→  | 'imf' | 'world_bank' | 'wto'
+    62→  | 'sco' | 'asean' | 'eu_commission'
+    63→  | 'yahoo_finance' | 'bloomberg' | 'reuters'
+    64→  | 'wsj' | 'ft' | 'cnbc' | 'nikkei'
+    65→  | 'wef' | 'fed' | 'ecb' | 'boj'
+    66→  | 'opec' | 'iea' | 'iso'
+    67→  | 'custom' | 'rss'
+    68→
+    69→type NewsCategory = 
+    70→  | 'monetary_policy' | 'fiscal_policy' | 'trade_policy'
+    71→  | 'equity_markets' | 'fixed_income' | 'commodities' | 'forex' | 'crypto'
+    72→  | 'supply_chain' | 'logistics' | 'manufacturing'
+    73→  | 'esg' | 'climate' | 'regulation'
+    74→  | 'geopolitics' | 'technology' | 'labor_market'
+    75→  | 'economic_indicators' | 'earnings' | 'm&a'
+    76→
+    77→interface MarketIndex {
+    78→  symbol: string
+    79→  name: string
+    80→  value: number
+    81→  change: number
+    82→  changePercent: number
+    83→}
+    84→
+    85→interface CommodityPrice {
+    86→  symbol: string
+    87→  name: string
+    88→  price: number
+    89→  unit: string
+    90→  change: number
+    91→  changePercent: number
+    92→}
+    93→
+    94→interface CurrencyPair {
+    95→  pair: string
+    96→  name: string
+    97→  rate: number
+    98→  change: number
+    99→  changePips: number
+   100→}
+   101→
+   102→interface EconomicIndicator {
+   103→  name: string
+   104→  value: string
+   105→  previous: string
+   106→  forecast: string
+   107→  actual: string
+   108→  impact: 'high' | 'medium' | 'low'
+   109→  currency: string
+   110→  date: string
+   111→}
+   112→
+   113→// ============================================================================
+   114→// SOURCE CONFIGURATION
+   115→// ============================================================================
+   116→
+   117→const NEWS_SOURCES: Record<NewsSource, { name: string; color: string; icon: string; region: string; reliability: number }> = {
+   118→  imf: { name: 'International Monetary Fund', color: '#006BA6', icon: '🏛️', region: 'Global', reliability: 0.98 },
+   119→  world_bank: { name: 'World Bank', color: '#0071BC', icon: '🌍', region: 'Global', reliability: 0.97 },
+   120→  wto: { name: 'World Trade Organization', color: '#0055A4', icon: '🌐', region: 'Global', reliability: 0.96 },
+   121→  
+   122→  sco: { name: 'Shanghai Cooperation Organization', color: '#006400', icon: '🎯', region: 'Asia-Eurasia', reliability: 0.92 },
+   123→  asean: { name: 'ASEAN Secretariat', color: '#FFD100', icon: '🤝', region: 'Southeast Asia', reliability: 0.90 },
+   124→  eu_commission: { name: 'European Commission', color: '#003399', icon: '🇪🇺', region: 'Europe', reliability: 0.95 },
+   125→  
+   126→  yahoo_finance: { name: 'Yahoo Finance', color: '#6001D2', icon: '📊', region: 'Global', reliability: 0.88 },
+   127→  bloomberg: { name: 'Bloomberg', color: '#292929', icon: '📈', region: 'Global', reliability: 0.94 },
+   128→  reuters: { name: 'Reuters', color: '#FF8000', icon: '📰', region: 'Global', reliability: 0.93 },
+   129→  wsj: { name: 'Wall Street Journal', color: '#000000', icon: '📰', region: 'US/Global', reliability: 0.96 },
+   130→  ft: { name: 'Financial Times', color: '#FFF1E0', icon: '📰', region: 'UK/Global', reliability: 0.95 },
+   131→  cnbc: { name: 'CNBC', color: '#041E42', icon: '📺', region: 'US/Global', reliability: 0.89 },
+   132→  nikkei: { name: 'Nikkei', color: '#E60012', icon: '📰', region: 'Asia-Pacific', reliability: 0.91 },
+   133→  
+   134→  wef: { name: 'World Economic Forum', color: '#00CED1', icon: '🌟', region: 'Global', reliability: 0.93 },
+   135→  fed: { name: 'Federal Reserve', color: '#000000', icon: '🏦', region: 'United States', reliability: 0.99 },
+   136→  ecb: { name: 'European Central Bank', color: '#003399', icon: '🏛️', region: 'Eurozone', reliability: 0.99 },
+   137→  boj: { name: 'Bank of Japan', color: '#FFFFFF', icon: '🏦', region: 'Japan', reliability: 0.99 },
+   138→  
+   139→  opec: { name: 'OPEC', color: '#228B22', icon: '🛢️', region: 'Global Energy', reliability: 0.90 },
+   140→  iea: { name: 'International Energy Agency', color: '#FF6600', icon: '⚡', region: 'Global Energy', reliability: 0.91 },
+   141→  iso: { name: 'ISO Standards', color: '#0066B3', icon: '✅', region: 'Global', reliability: 0.94 },
+   142→  
+   143→  custom: { name: 'Custom Source', color: '#6B7280', icon: '📝', region: 'Various', reliability: 0.75 },
+   144→  rss: { name: 'RSS Feed', color: '#F26522', icon: '📡', region: 'Various', reliability: 0.70 }
+   145→}
+   146→
+   147→// ============================================================================
+   148→// MOCK DATA GENERATION (Replace with real API calls)
+   149→// ============================================================================
+   150→
+   151→const generateMockFinancialNews = (): FinancialNewsItem[] => [
+   152→  {
+   153→    id: 'fn-001',
+   154→    title: 'IMF Raises Global Growth Forecast to 3.2% on AI-Driven Productivity Gains',
+   155→    summary: 'The International Monetary Fund revised its 2025 global growth outlook upward, citing artificial intelligence adoption in manufacturing and supply chain optimization as key drivers.',
+   156→    content: 'In its latest World Economic Outlook, the IMF highlighted that AI-powered supply chain management has contributed to a 0.4 percentage point increase in projected global GDP growth...',
+   157→    source: 'imf',
+   158→    category: 'economic_indicators',
+   159→    tags: ['IMF', 'GDP', 'AI', 'Productivity', 'Global Economy'],
+   160→    publishedAt: new Date(Date.now() - 3600000),
+   161→    url: 'https://www.imf.org/en/Publications/WEO',
+   162→    
+   163→    impact: 'critical',
+   164→    sentiment: 'bullish',
+   165→    sentimentScore: 0.72,
+   166→    
+   167→    supplyChainRelevance: {
+   168→      score: 95,
+   169→      affectedRegions: ['Global', 'North America', 'Europe', 'Asia Pacific'],
+   170→      affectedIndustries: ['Manufacturing', 'Logistics', 'Technology', 'Retail'],
+   171→      riskImplications: ['Increased demand for supply chain technology', 'Higher investment in automation'],
+   172→      opportunityIndicators: ['AI solution providers', 'Automation equipment manufacturers']
+   173→    },
+   174→    
+   175→    marketData: {
+   176→      relatedTicker: 'SPY',
+   177→      priceChange: 1.24,
+   178→      volumeChange: 15.3,
+   179→      volatilityIndex: 14.2
+   180→    },
+   181→    
+   182→    aiInsights: {
+   183→      keyTakeaways: [
+   184→        'AI productivity gains now measurable in official economic statistics',
+   185→        'Supply chain resilience improved across 87% of surveyed economies',
+   186→        'Emerging markets showing fastest adoption rates'
+   187→      ],
+   188→      predictedImpact: 'Positive for technology and industrial sectors; potential inflation moderation from efficiency gains',
+   189→      confidenceLevel: 0.94,
+   190→      similarEvents: [
+   191→        { title: 'Internet Boom Productivity Surge (1998)', date: '1998-03', outcome: '+4.5% GDP growth over 3 years' },
+   192→        { title: 'Post-WWII Industrial Automation (1950s)', date: '1955-06', outcome: 'Sustained 3%+ annual productivity growth' }
+   193→      ]
+   194→    }
+   195→  },
+   196→  {
+   197→    id: 'fn-002',
+   198→    title: 'Fed Signals Rate Pause Amid Improved Supply Chain Metrics',
+   199→    summary: 'Federal Reserve officials indicated that disinflationary pressures from supply-side improvements may allow for an extended pause in rate hikes.',
+   200→    source: 'fed',
+   201→    category: 'monetary_policy',
+   202→    tags: ['Federal Reserve', 'Interest Rates', 'Inflation', 'Supply Chain'],
+   203→    publishedAt: new Date(Date.now() - 7200000),
+   204→    url: 'https://www.federalreserve.gov',
+   205→    
+   206→    impact: 'critical',
+   207→    sentiment: 'bullish',
+   208→    sentimentScore: 0.65,
+   209→    
+   210→    supplyChainRelevance: {
+   211→      score: 88,
+   212→      affectedRegions: ['United States', 'North America'],
+   213→      affectedIndustries: ['Banking', 'Real Estate', 'Manufacturing', 'Construction'],
+   214→      riskImplications: ['Lower borrowing costs expected', 'Reduced inventory financing pressure'],
+   215→      opportunityIndicators: ['Capital-intensive projects', 'Equipment financing']
+   216→    },
+   217→    
+   218→    marketData: {
+   219→      relatedTicker: '^TNX',
+   220→      priceChange: -0.05,
+   221→      volatilityIndex: 13.8
+   222→    },
+   223→    
+   224→    aiInsights: {
+   225→      keyTakeaways: [
+   226→        'Core PCE showing sustained decline due to logistics efficiency',
+   227→        'Goods deflation contributing significantly to overall price stability',
+   228→        'Committee members citing supply chain normalization as key factor'
+   229→      ],
+   230→      predictedImpact: 'Equities favorable; bond yields may remain range-bound; dollar strength moderate',
+   231→      confidenceLevel: 0.91
+   232→    }
+   233→  },
+   234→  {
+   235→    id: 'fn-003',
+   236→    title: 'SCO Members Establish Unified Digital Trade Corridor Standards',
+   237→    summary: 'The Shanghai Cooperation Organization announced new harmonized digital trade documentation standards affecting over 40% of world population.',
+   238→    source: 'sco',
+   239→    category: 'trade_policy',
+   240→    tags: ['SCO', 'Digital Trade', 'Asia', 'Eurasia', 'Standards'],
+   241→    publishedAt: new Date(Date.now() - 10800000),
+   242→    url: 'https://www.eng.sectsco.org',
+   243→    
+   244→    impact: 'high',
+   245→    sentiment: 'bullish',
+   246→    sentimentScore: 0.58,
+   247→    
+   248→    supplyChainRelevance: {
+   249→      score: 92,
+   250→      affectedRegions: ['China', 'Russia', 'India', 'Central Asia', 'Pakistan'],
+   251→      affectedIndustries: ['Cross-border E-commerce', 'Logistics', 'Customs Brokerage', 'Trade Finance'],
+   252→      riskImplications: ['New compliance requirements', 'System integration needs', 'Documentation standardization'],
+   253→      opportunityIndicators: ['Digital platform providers', 'Compliance software vendors', 'Trade finance fintech']
+   254→    },
+   255→    
+   256→    aiInsights: {
+   257→      keyTakeaways: [
+   258→        'Single digital window concept adopted by all 9 member states',
+   259→        'Blockchain-based document verification to be implemented by Q4 2025',
+   260→        'Estimated $45B annual trade facilitation savings projected'
+   261→      ],
+   262→      predictedImpact: 'Significant reduction in cross-border transaction times; increased trade volumes within SCO region',
+   263→      confidenceLevel: 0.87
+   264→    }
+   265→  },
+   266→  {
+   267→    id: 'fn-004',
+   268→    title: 'WSJ: AI Supply Chain Platforms Secure Record $12B in Q1 Venture Funding',
+   269→    summary: 'Wall Street Journal reports that venture capital investment in supply chain intelligence platforms reached an all-time high, with enterprise adoption up 340% year-over-year.',
+   270→    source: 'wsj',
+   271→    category: 'technology',
+   272→    tags: ['Venture Capital', 'AI', 'Supply Chain Tech', 'Startups', 'WSJ'],
+   273→    publishedAt: new Date(Date.now() - 14400000),
+   274→    url: 'https://www.wsj.com',
+   275→    
+   276→    impact: 'high',
+   277→    sentiment: 'bullish',
+   278→    sentimentScore: 0.81,
+   279→    
+   280→    supplyChainRelevance: {
+   281→      score: 90,
+   282→      affectedRegions: ['Global', 'North America', 'Europe', 'Israel'],
+   283→      affectedIndustries: ['Software', 'Cloud Computing', 'AI/ML', 'Enterprise IT'],
+   284→      riskImplications: ['Market consolidation expected', 'Talent competition intensifying'],
+   285→      opportunityIndicators: ['Early-stage startups', 'AI research labs', 'Cloud infrastructure providers']
+   286→    },
+   287→    
+   288→    marketData: {
+   289→      relatedTicker: 'VC fund index',
+   290→      volumeChange: 34.7
+   291→    },
+   292→    
+   293→    aiInsights: {
+   294→      keyTakeaways: [
+   295→        'Average Series B valuation up 180% compared to 2024',
+   296→        'Enterprise customers showing 18-month average ROI achievement',
+   297→        'Multi-model AI approaches attracting premium valuations'
+   298→      ],
+   299→      predictedImpact: 'Accelerated innovation; potential bubble formation in late-stage deals; strong M&A activity expected',
+   300→      confidenceLevel: 0.89
+   301→    }
+   302→  },
+   303→  {
+   304→    id: 'fn-005',
+   305→    title: 'Bloomberg: Semiconductor Supply Chain Reaches Historic Efficiency Levels',
+   306→    summary: 'Advanced demand forecasting and AI-powered coordination have reduced chip delivery times by 45%, addressing chronic shortages in tech manufacturing.',
+   307→    source: 'bloomberg',
+   308→    category: 'supply_chain',
+   309→    tags: ['Semiconductors', 'Chips', 'Tech Manufacturing', 'AI', 'Bloomberg'],
+   310→    publishedAt: new Date(Date.now() - 18000000),
+   311→    url: 'https://www.bloomberg.com',
+   312→    
+   313→    impact: 'high',
+   314→    sentiment: 'bullish',
+   315→    sentimentScore: 0.69,
+   316→    
+   317→    supplyChainRelevance: {
+   318→      score: 94,
+   319→      affectedRegions: ['Taiwan', 'South Korea', 'US', 'Japan', 'Netherlands'],
+   320→      affectedIndustries: ['Semiconductors', 'Electronics', 'Automotive', 'Consumer Tech', 'Defense'],
+   321→      riskImplications: ['Geographic concentration risks remain', 'Potential overcapacity concerns'],
+   322→      opportunityIndicators: ['Advanced packaging', 'Chiplet architecture', 'Materials science']
+   323→    },
+   324→    
+   325→    marketData: {
+   326→      relatedTicker: 'SMH',
+   327→      priceChange: 2.34,
+   328→      changePercent: 2.89
+   329→    },
+   330→    
+   331→    aiInsights: {
+   332→      keyTakeaways: [
+   333→        'Lead time for advanced nodes reduced from 20+ weeks to 11 weeks average',
+   334→        'Yield improvement through predictive maintenance up 23%',
+   335→        'Inventory optimization saving industry $8B annually'
+   336→      ],
+   337→      predictedImpact: 'Sustained tech sector growth; margin expansion for chipmakers; downstream benefits for OEMs',
+   338→      confidenceLevel: 0.92
+   339→    }
+   340→  },
+   341→  {
+   342→    id: 'fn-006',
+   343→    title: 'WEF Davos: 89% of CEOs Rank Sustainable Supply Chain Transparency as Critical',
+   344→    summary: 'World Economic Forum annual survey reveals unprecedented executive focus on environmental and social visibility throughout value chains.',
+   345→    source: 'wef',
+   346→    category: 'esg',
+   347→    tags: ['ESG', 'Sustainability', 'Davos', 'CEO Survey', 'Transparency'],
+   348→    publishedAt: new Date(Date.now() - 21600000),
+   349→    url: 'https://www.weforum.org',
+   350→    
+   351→    impact: 'medium',
+   352→    sentiment: 'neutral',
+   353→    sentimentScore: 0.12,
+   354→    
+   355→    supplyChainRelevance: {
+   356→      score: 85,
+   357→      affectedRegions: ['Global'],
+   358→      affectedIndustries: ['All Industries', 'Consumer Goods', 'Fashion', 'Food & Beverage', 'Automotive'],
+   359→      riskImplications: ['Regulatory compliance costs', 'Reporting burden increase', 'Supplier audit requirements'],
+   360→      opportunityIndicators: ['Traceability solutions', 'Carbon accounting platforms', 'ESG data providers']
+   361→    },
+   362→    
+   363→    aiInsights: {
+   364→      keyTakeaways: [
+   365→        'Scope 3 emissions reporting becoming board-level priority',
+   366→        'Investor pressure driving transparency investments',
+   367→        'Technology solutions seeing 280% demand increase'
+   368→      ],
+   369→      predictedImpact: 'Accelerated ESG technology adoption; competitive advantage for early movers; regulatory alignment likely',
+   370→      confidenceLevel: 0.86
+   371→    }
+   372→  },
+   373→  {
+   374→    id: 'fn-007',
+   375→    title: 'EU Digital Product Passport Mandate Takes Effect 2026',
+   376→    summary: 'European Commission confirms comprehensive supply chain traceability requirements for all products sold in EU markets starting January 2026.',
+   377→    source: 'eu_commission',
+   378→    category: 'regulation',
+   379→    tags: ['EU Regulation', 'Digital Passport', 'Traceability', 'Compliance', '2026'],
+   380→    publishedAt: new Date(Date.now() - 25200000),
+   381→    url: 'https://ec.europa.eu',
+   382→    
+   383→    impact: 'critical',
+   384→    sentiment: 'bearish',
+   385→    sentimentScore: -0.25,
+   386→    
+   387→    supplyChainRelevance: {
+   388→      score: 98,
+   389→      affectedRegions: ['European Union', 'Trading Partners'],
+   390→      affectedIndustries: ['Manufacturing', 'Textiles', 'Electronics', 'Batteries', 'Construction Materials'],
+   391→      riskImplications: ['Significant compliance investment required', 'Data sharing with suppliers mandatory', 'Non-compliance penalties severe'],
+   392→      opportunityIndicators: ['DPP platform providers', 'IoT sensor networks', 'Blockchain traceability', 'Consulting services']
+   393→    },
+   394→    
+   395→    aiInsights: {
+   396→      keyTakeaways: [
+   397→        'Full material passport required including recycled content %',
+   398→        'Real-time data updates mandated for high-risk products',
+   399→        'Estimated €50B market for compliance solutions by 2027'
+   400→      ],
+   401→      predictedImpact: 'Major disruption for unprepared companies; first-mover advantage significant; technology vendors positioned well',
+   402→      confidenceLevel: 0.96
+   403→    }
+   404→  },
+   405→  {
+   406→    id: 'fn-008',
+   407→    title: 'Reuters: Oil Prices Stabilize on OPEC+ Production Coordination Success',
+   408→    summary: 'OPEC+ members demonstrate improved production coordination through AI-enhanced demand forecasting, reducing market volatility.',
+   409→    source: 'reuters',
+   410→    category: 'commodities',
+   411→    tags: ['Oil', 'OPEC', 'Energy', 'Production', 'Reuters'],
+   412→    publishedAt: new Date(Date.now() - 28800000),
+   413→    url: 'https://www.reuters.com',
+   414→    
+   415→    impact: 'medium',
+   416→    sentiment: 'neutral',
+   417→    sentimentScore: 0.05,
+   418→    
+   419→    supplyChainRelevance: {
+   420→      score: 78,
+   421→      affectedRegions: ['Middle East', 'Russia', 'Global'],
+   422→      affectedIndustries: ['Energy', 'Transportation', 'Chemicals', 'Plastics', 'Aviation'],
+   423→      riskImplications: ['Input cost predictability improving', 'Geopolitical risk remains elevated'],
+   424→      opportunityIndicators: ['Energy efficiency solutions', 'Alternative fuels', 'Renewable energy integration']
+   425→    },
+   426→    
+   427→    marketData: {
+   428→      relatedTicker: 'CL=F',
+   429→      priceChange: 0.82,
+   430→      changePercent: 1.05
+   431→    },
+   432→    
+   433→    aiInsights: {
+   434→      keyTakeaways: [
+   435→        'Production quota compliance at 96% - highest in decade',
+   436→        'Demand forecasting accuracy improved 34% using ML models',
+   437→        'Strategic reserve levels optimal across member states'
+   438→      ],
+   439→      predictedImpact: 'Stable energy costs supportive of manufacturing; transition planning window extended',
+   440→      confidenceLevel: 0.84
+   441→    }
+   442→  },
+   443→  {
+   444→    id: 'fn-009',
+   445→    title: 'CNBC: Global Shipping Rates Normalize After 18-Month Volatility',
+   446→    summary: 'Container shipping prices return to pre-pandemic levels as fleet capacity and port efficiency improvements stabilize global trade routes.',
+   447→    source: 'cnbc',
+   448→    category: 'logistics',
+   449→    tags: ['Shipping', 'Container Rates', 'Logistics', 'Freight', 'CNBC'],
+   450→    publishedAt: new Date(Date.now() - 32400000),
+   451→    url: 'https://www.cnbc.com',
+   452→    
+   453→    impact: 'medium',
+   454→    sentiment: 'bullish',
+   455→    sentimentScore: 0.44,
+   456→    
+   457→    supplyChainRelevance: {
+   458→      score: 82,
+   459→      affectedRegions: ['Global', 'Asia-Europe', 'Trans-Pacific'],
+   460→      affectedIndustries: ['Retail', 'E-commerce', 'Manufacturing', 'Agriculture'],
+   461→      riskImplications: ['Margin recovery for importers', 'Inventory strategy adjustments possible'],
+   462→      opportunityIndicators: ['Just-in-time viability return', 'Ocean freight derivatives', 'Port technology investments']
+   463→    },
+   464→    
+   465→    marketData: {
+   466→      relatedTicker: 'SHIPPING index',
+   467→      priceChange: -3.21
+   468→    },
+   469→    
+   470→    aiInsights: {
+   471→      keyTakeaways: [
+   472→        'Asia-Europe spot rates down 67% from peak',
+   473→        'Port dwell time reduced 40% through smart scheduling',
+   474→        'Vessel utilization optimized via route AI systems'
+   475→      ],
+   476→      predictedImpact: 'Importer margin expansion; consumer price benefits; logistics provider consolidation likely',
+   477→      confidenceLevel: 0.88
+   478→    }
+   479→  },
+   480→  {
+   481→    id: 'fn-010',
+   482→    title: 'FT: Carbon Border Adjustment Mechanism Expands Scope',
+   483→    summary: 'Financial Times reports EU CBAM will expand to additional sectors and potentially inspire similar mechanisms in US, UK, and Canada.',
+   484→    source: 'ft',
+   485→    category: 'regulation',
+   486→    tags: ['CBAM', 'Carbon Tax', 'Trade Policy', 'Climate', 'FT'],
+   487→    publishedAt: new Date(Date.now() - 36000000),
+   488→    url: 'https://www.ft.com',
+   489→    
+   490→    impact: 'high',
+   491→    sentiment: 'bearish',
+   492→    sentimentScore: -0.38,
+   493→    
+   494→    supplyChainRelevance: {
+   495→      score: 91,
+   496→      affectedRegions: ['European Union', 'Exporters to EU'],
+   497→      affectedIndustries: ['Steel', 'Aluminum', 'Cement', 'Chemicals', 'Fertilizers'],
+   498→      riskImplications: ['Carbon cost pass-through to consumers', 'Competitive disadvantage for high-carbon producers'],
+   499→      opportunityIndicators: ['Low-carbon manufacturing', 'Carbon capture technology', 'Green hydrogen', 'Recycling']
+   500→    },
+   501→    
+   502→    aiInsights: {
+   503→      keyTakeaways: [
+   504→        'Phase 2 reporting begins October 2025',
+   505→        'Financial certificates required from January 2026',
+   506→        'Estimated €15B annual revenue for EU from CBAM'
+   507→      ],
+   508→      predictedImpact: 'Acceleration of green transition; carbon-efficient producers gain advantage; trade pattern shifts expected',
+   509→      confidenceLevel: 0.90
+   510→    }
+   511→  }
+   512→]
+   513→
+   514→// Generate mock market data
+   515→const MARKET_INDICES: MarketIndex[] = [
+   516→  { symbol: 'SPX', name: 'S&P 500', value: 5894.16, change: 49.32, changePercent: 0.84 },
+   517→  { symbol: 'IXIC', name: 'NASDAQ Composite', value: 19245.32, change: 235.67, changePercent: 1.24 },
+   518→  { symbol: 'DJI', name: 'Dow Jones Industrial', value: 43245.87, change: 224.56, changePercent: 0.52 },
+   519→  { symbol: 'UKX', name: 'FTSE 100', value: 8234.56, change: -14.82, changePercent: -0.18 },
+   520→  { symbol: 'NKY', name: 'Nikkei 225', value: 39876.21, change: 379.43, changePercent: 0.96 },
+   521→  { symbol: 'SHCOMP', name: 'Shanghai Composite', value: 3456.78, change: 11.76, changePercent: 0.34 },
+   522→  { symbol: 'STOXX50E', name: 'Euro Stoxx 50', value: 4567.89, change: 33.45, changePercent: 0.74 },
+   523→  { symbol: 'HSI', name: 'Hang Seng', value: 22345.67, change: -123.45, changePercent: -0.55 }
+   524→]
+   525→
+   526→const COMMODITY_PRICES: CommodityPrice[] = [
+   527→  { symbol: 'CL', name: 'Crude Oil WTI', price: 78.45, unit: 'USD/bbl', change: 1.62, changePercent: 2.10 },
+   528→  { symbol: 'GC', name: 'Gold', price: 2654.30, unit: 'USD/oz', change: 21.17, changePercent: 0.80 },
+   529→  { symbol: 'NG', name: 'Natural Gas', price: 3.24, unit: 'USD/MMBtu', change: -0.05, changePercent: -1.52 },
+   530→  { symbol: 'HG', name: 'Copper', price: 4.56, unit: 'USD/lb', change: 0.14, changePercent: 3.20 },
+   531→  { symbol: 'SI', name: 'Silver', price: 31.25, unit: 'USD/oz', change: 0.45, changePercent: 1.46 }
+   532→]
+   533→
+   534→const CURRENCY_PAIRS: CurrencyPair[] = [
+   535→  { pair: 'EUR/USD', name: 'Euro / US Dollar', rate: 1.0856, change: 0.0022, changePips: 22 },
+   536→  { pair: 'USD/JPY', name: 'US Dollar / Japanese Yen', rate: 149.34, change: -0.58, changePips: -58 },
+   537→  { pair: 'GBP/USD', name: 'British Pound / US Dollar', rate: 1.2678, change: 0.0013, changePips: 13 },
+   538→  { pair: 'USD/CNY', name: 'US Dollar / Chinese Yuan', rate: 7.2456, change: -0.0036, changePips: -36 },
+   539→  { pair: 'USD/CHF', name: 'US Dollar / Swiss Franc', rate: 0.8734, change: 0.0018, changePips: 18 },
+   540→  { pair: 'AUD/USD', name: 'Australian Dollar / US Dollar', rate: 0.6523, change: 0.0029, changePips: 29 }
+   541→]
+   542→
+   543→const ECONOMIC_CALENDAR: EconomicIndicator[] = [
+   544→  { name: 'US Non-Farm Payrolls', value: '185K', previous: '175K', forecast: '180K', actual: 'Pending', impact: 'high', currency: 'USD', date: '2025-02-07' },
+   545→  { name: 'CPI YoY', value: '2.9%', previous: '3.0%', forecast: '2.9%', actual: '2.8%', impact: 'high', currency: 'USD', date: '2025-02-12' },
+   546→  { name: 'ECB Interest Rate Decision', value: '3.00%', previous: '3.25%', forecast: '3.00%', actual: 'Pending', impact: 'high', currency: 'EUR', date: '2025-02-06' },
+   547→  { name: 'China PMI Manufacturing', value: '51.2', previous: '50.8', forecast: '50.9', actual: '51.4', impact: 'high', currency: 'CNY', date: '2025-02-01' },
+   548→  { name: 'UK GDP QoQ', value: '0.2%', previous: '0.1%', forecast: '0.2%', actual: 'Pending', impact: 'medium', currency: 'GBP', date: '2025-02-12' }
+   549→]
+   550→
+   551→// ============================================================================
+   552→// MAIN COMPONENT
+   553→// ============================================================================
+   554→
+   555→export default function FinancialNewsAggregator() {
+   556→  const [newsItems, setNewsItems] = useState<FinancialNewsItem[]>([])
+   557→  const [selectedSource, setSelectedSource] = useState<NewsSource | 'all'>('all')
+   558→  const [selectedCategory, setSelectedCategory] = useState<NewsCategory | 'all'>('all')
+   559→  const [selectedImpact, setSelectedImpact] = useState<string>('all')
+   560→  const [searchQuery, setSearchQuery] = useState('')
+   561→  const [isRefreshing, setIsRefreshing] = useState(false)
+   562→  const [lastRefresh, setLastRefresh] = useState(new Date())
+   563→  const [selectedArticle, setSelectedArticle] = useState<FinancialNewsItem | null>(null)
+   564→  const [activeTab, setActiveTab] = useState<'news' | 'markets' | 'calendar'>('news')
+   565→  const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set())
+   566→
+   567→  // Initialize news data
+   568→  useEffect(() => {
+   569→    setNewsItems(generateMockFinancialNews())
+   570→  }, [])
+   571→
+   572→  // Refresh handler
+   573→  const handleRefresh = useCallback(() => {
+   574→    setIsRefreshing(true)
+   575→    setTimeout(() => {
+   576→      setNewsItems(generateMockFinancialNews())
+   577→      setLastRefresh(new Date())
+   578→      setIsRefreshing(false)
+   579→    }, 1500)
+   580→  }, [])
+   581→
+   582→  // Filtered news items
+   583→  const filteredNews = useMemo(() => {
+   584→    let result = [...newsItems]
+   585→
+   586→    if (selectedSource !== 'all') {
+   587→      result = result.filter(item => item.source === selectedSource)
+   588→    }
+   589→
+   590→    if (selectedCategory !== 'all') {
+   591→      result = result.filter(item => item.category === selectedCategory)
+   592→    }
+   593→
+   594→    if (selectedImpact !== 'all') {
+   595→      result = result.filter(item => item.impact === selectedImpact)
+   596→    }
+   597→
+   598→    if (searchQuery.trim()) {
+   599→      const query = searchQuery.toLowerCase()
+   600→      result = result.filter(item =>
+   601→        item.title.toLowerCase().includes(query) ||
+   602→        item.summary.toLowerCase().includes(query) ||
+   603→        item.tags.some(tag => tag.toLowerCase().includes(query))
+   604→      )
+   605→    }
+   606→
+   607→    return result.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
+   608→  }, [newsItems, selectedSource, selectedCategory, selectedImpact, searchQuery])
+   609→
+   610→  // Toggle bookmark
+   611→  const toggleBookmark = (id: string) => {
+   612→    setBookmarkedIds(prev => {
+   613→      const next = new Set(prev)
+   614→      if (next.has(id)) {
+   615→        next.delete(id)
+   616→      } else {
+   617→        next.add(id)
+   618→      }
+   619→      return next
+   620→    })
+   621→  }
+   622→
+   623→  // Format helpers
+   624→  const formatTimeAgo = (date: Date): string => {
+   625→    const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+   626→    if (seconds < 60) return `${seconds}s ago`
+   627→    const minutes = Math.floor(seconds / 60)
+   628→    if (minutes < 60) return `${minutes}m ago`
+   629→    const hours = Math.floor(minutes / 60)
+   630→    if (hours < 24) return `${hours}h ago`
+   631→    const days = Math.floor(hours / 24)
+   632→    return `${days}d ago`
+   633→  }
+   634→
+   635→  const formatNumber = (num: number, decimals: number = 2): string => {
+   636→    return num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+   637→  }
+   638→
+   639→  // Get unique values for filters
+   640→  const sources = useMemo(() => [...new Set(newsItems.map(item => item.source))], [newsItems])
+   641→  const categories = useMemo(() => [...new Set(newsItems.map(item => item.category))], [newsItems])
+   642→
+   643→  return (
+   644→    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+   645→      {/* Header */}
+   646→      <header className="sticky top-0 z-50 bg-slate-950/95 backdrop-blur-md border-b border-slate-800">
+   647→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   648→          <div className="flex items-center justify-between h-16">
+   649→            <div className="flex items-center gap-4">
+   650→              <div className="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl">
+   651→                <Newspaper className="w-6 h-6 text-white" />
+   652→              </div>
+   653→              <div>
+   654→                <h1 className="text-xl font-bold">Global Financial Intelligence</h1>
+   655→                <p className="text-xs text-gray-500">Real-time market news & analysis</p>
+   656→              </div>
+   657→            </div>
+   658→
+   659→            <div className="flex items-center gap-4">
+   660→              <button
+   661→                onClick={handleRefresh}
+   662→                disabled={isRefreshing}
+   663→                className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+   664→              >
+   665→                <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+   666→                Refresh
+   667→              </button>
+   668→              
+   669→              <span className="text-xs text-gray-500 hidden sm:block">
+   670→                Updated: {lastRefresh.toLocaleTimeString()}
+   671→              </span>
+   672→            </div>
+   673→          </div>
+   674→        </div>
+   675→      </header>
+   676→
+   677→      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+   678→        {/* Tab Navigation */}
+   679→        <nav className="flex gap-2 mb-6 overflow-x-auto pb-2">
+   680→          {[
+   681→            { id: 'news', label: 'News Feed', icon: Newspaper },
+   682→            { id: 'markets', label: 'Markets', icon: BarChart3 },
+   683→            { id: 'calendar', label: 'Economic Calendar', icon: Calendar }
+   684→          ].map(tab => (
+   685→            <button
+   686→              key={tab.id}
+   687→              onClick={() => setActiveTab(tab.id as typeof activeTab)}
+   688→              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all ${
+   689→                activeTab === tab.id
+   690→                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
+   691→                  : 'bg-slate-800 text-gray-400 hover:bg-slate-700 hover:text-white'
+   692→              }`}
+   693→            >
+   694→              <tab.icon className="w-4 h-4" />
+   695→              {tab.label}
+   696→            </button>
+   697→          ))}
+   698→        </nav>
+   699→
+   700→        {/* NEWS TAB */}
+   701→        {activeTab === 'news' && (
+   702→          <div className="space-y-6">
+   703→            {/* Filters */}
+   704→            <div className="flex flex-wrap gap-4 p-4 bg-slate-900/50 border border-slate-800 rounded-xl">
+   705→              <div className="flex-1 min-w-[250px] relative">
+   706→                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+   707→                <input
+   708→                  type="text"
+   709→                  placeholder="Search news..."
+   710→                  value={searchQuery}
+   711→                  onChange={(e) => setSearchQuery(e.target.value)}
+   712→                  className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+   713→                />
+   714→              </div>
+   715→
+   716→              <select
+   717→                value={selectedSource}
+   718→                onChange={(e) => setSelectedSource(e.target.value as NewsSource | 'all')}
+   719→                className="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500"
+   720→              >
+   721→                <option value="all">All Sources</option>
+   722→                {sources.map(source => (
+   723→                  <option key={source} value={source}>{NEWS_SOURCES[source].name}</option>
+   724→                ))}
+   725→              </select>
+   726→
+   727→              <select
+   728→                value={selectedCategory}
+   729→                onChange={(e) => setSelectedCategory(e.target.value as NewsCategory | 'all')}
+   730→                className="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500"
+   731→              >
+   732→                <option value="all">All Categories</option>
+   733→                {categories.map(cat => (
+   734→                  <option key={cat} value={cat}>{cat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>
+   735→                ))}
+   736→              </select>
+   737→
+   738→              <select
+   739→                value={selectedImpact}
+   740→                onChange={(e) => setSelectedImpact(e.target.value)}
+   741→                className="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500"
+   742→              >
+   743→                <option value="all">All Impact Levels</option>
+   744→                <option value="critical">Critical</option>
+   745→                <option value="high">High</option>
+   746→                <option value="medium">Medium</option>
+   747→                <option value="low">Low</option>
+   748→              </select>
+   749→            </div>
+   750→
+   751→            {/* Results Summary */}
+   752→            <div className="flex items-center justify-between text-sm">
+   753→              <span className="text-gray-400">
+   754→                Showing <span className="text-white font-medium">{filteredNews.length}</span> articles
+   755→              </span>
+   756→              <div className="flex items-center gap-4">
+   757→                <label className="flex items-center gap-2 text-gray-400 cursor-pointer">
+   758→                  <input type="checkbox" className="rounded bg-slate-800 border-slate-600" />
+   759→                  Bookmarked only ({bookmarkedIds.size})
+   760→                </label>
+   761→              </div>
+   762→            </div>
+   763→
+   764→            {/* News Grid */}
+   765→            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+   766→              {filteredNews.map(article => (
+   767→                <article
+   768→                  key={article.id}
+   769→                  onClick={() => setSelectedArticle(article)}
+   770→                  className={`group bg-slate-900/60 border rounded-xl p-5 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.01] ${
+   771→                    article.impact === 'critical' ? 'border-red-500/50 hover:border-red-500' :
+   772→                    article.impact === 'high' ? 'border-orange-500/50 hover:border-orange-500' :
+   773→                    'border-slate-800 hover:border-slate-700'
+   774→                  }`}
+   775→                >
+   776→                  {/* Article Header */}
+   777→                  <div className="flex items-start justify-between mb-3">
+   778→                    <div className="flex items-center gap-2">
+   779→                      <span
+   780→                        className="px-2 py-1 text-xs font-medium rounded-full"
+   781→                        style={{ backgroundColor: `${NEWS_SOURCES[article.source].color}20`, color: NEWS_SOURCES[article.source].color }}
+   782→                      >
+   783→                        {NEWS_SOURCES[article.source].name.split(' ').slice(0, 2).join(' ')}
+   784→                      </span>
+   785→                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+   786→                        article.sentiment === 'bullish' ? 'bg-green-500/20 text-green-400' :
+   787→                        article.sentiment === 'bearish' ? 'bg-red-500/20 text-red-400' :
+   788→                        'bg-gray-500/20 text-gray-400'
+   789→                      }`}>
+   790→                        {article.sentiment.toUpperCase()}
+   791→                      </span>
+   792→                    </div>
+   793→                    <button
+   794→                      onClick={(e) => { e.stopPropagation(); toggleBookmark(article.id) }}
+   795→                      className={`p-1.5 rounded-lg transition-colors ${
+   796→                        bookmarkedIds.has(article.id) ? 'bg-yellow-500/20 text-yellow-400' : 'hover:bg-slate-800 text-gray-500'
+   797→                      }`}
+   798→                    >
+   799→                      <Bookmark className="w-4 h-4" fill={bookmarkedIds.has(article.id) ? 'currentColor' : 'none'} />
+   800→                    </button>
+   801→                  </div>
+   802→
+   803→                  {/* Title */}
+   804→                  <h3 className="font-semibold text-white mb-2 line-clamp-2 group-hover:text-blue-400 transition-colors">
+   805→                    {article.title}
+   806→                  </h3>
+   807→
+   808→                  {/* Summary */}
+   809→                  <p className="text-sm text-gray-400 mb-4 line-clamp-3">
+   810→                    {article.summary}
+   811→                  </p>
+   812→
+   813→                  {/* Supply Chain Score */}
+   814→                  <div className="mb-4">
+   815→                    <div className="flex items-center justify-between text-xs mb-1">
+   816→                      <span className="text-gray-500">SC Relevance</span>
+   817→                      <span className={`font-medium ${
+   818→                        article.supplyChainRelevance.score >= 90 ? 'text-green-400' :
+   819→                        article.supplyChainRelevance.score >= 70 ? 'text-yellow-400' :
+   820→                        'text-red-400'
+   821→                      }`}>
+   822→                        {article.supplyChainRelevance.score}%
+   823→                      </span>
+   824→                    </div>
+   825→                    <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+   826→                      <div
+   827→                        className={`h-full rounded-full transition-all duration-500 ${
+   828→                          article.supplyChainRelevance.score >= 90 ? 'bg-green-500' :
+   829→                          article.supplyChainRelevance.score >= 70 ? 'bg-yellow-500' :
+   830→                          'bg-red-500'
+   831→                        }`}
+   832→                        style={{ width: `${article.supplyChainRelevance.score}%` }}
+   833→                      ></div>
+   834→                    </div>
+   835→                  </div>
+   836→
+   837→                  {/* Footer */}
+   838→                  <div className="flex items-center justify-between pt-3 border-t border-slate-800">
+   839→                    <div className="flex items-center gap-2 text-xs text-gray-500">
+   840→                      <Clock className="w-3.5 h-3.5" />
+   841→                      {formatTimeAgo(article.publishedAt)}
+   842→                    </div>
+   843→                    <div className="flex items-center gap-2">
+   844→                      {article.marketData && (
+   845→                        <span className={`flex items-center gap-1 text-xs font-medium ${
+   846→                          (article.marketData.priceChange || 0) > 0 ? 'text-green-400' : 'text-red-400'
+   847→                        }`}>
+   848→                          {(article.marketData.priceChange || 0) > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+   849→                          {(article.marketData.priceChange || 0).toFixed(2)}%
+   850→                        </span>
+   851→                      )}
+   852→                      <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-blue-400 transition-colors" />
+   853→                    </div>
+   854→                  </div>
+   855→                </article>
+   856→              ))}
+   857→            </div>
+   858→          </div>
+   859→        )}
+   860→
+   861→        {/* MARKETS TAB */}
+   862→        {activeTab === 'markets' && (
+   863→          <div className="space-y-6">
+   864→            {/* Major Indices */}
+   865→            <section className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
+   866→              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+   867→                <BarChart3 className="w-5 h-5 text-blue-400" />
+   868→                Major Indices
+   869→              </h2>
+   870→              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+   871→                {MARKET_INDICES.map(index => (
+   872→                  <div key={index.symbol} className="bg-black/30 rounded-lg p-3">
+   873→                    <div className="text-xs text-gray-500 mb-1">{index.symbol}</div>
+   874→                    <div className="text-lg font-semibold text-white">{formatNumber(index.value)}</div>
+   875→                    <div className={`flex items-center gap-1 text-xs font-medium mt-1 ${
+   876→                      index.change >= 0 ? 'text-green-400' : 'text-red-400'
+   877→                    }`}>
+   878→                      {index.change >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+   879→                      {index.changePercent >= 0 ? '+' : ''}{index.changePercent.toFixed(2)}%
+   880→                    </div>
+   881→                  </div>
+   882→                ))}
+   883→              </div>
+   884→            </section>
+   885→
+   886→            {/* Commodities */}
+   887→            <section className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
+   888→              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+   889→                <Activity className="w-5 h-5 text-amber-400" />
+   890→                Key Commodities
+   891→              </h2>
+   892→              <div className="grid md:grid-cols-5 gap-4">
+   893→                {COMMODITIES_PRICES.map(commodity => (
+   894→                  <div key={commodity.symbol} className="bg-black/30 rounded-lg p-4">
+   895→                    <div className="flex items-center justify-between mb-2">
+   896→                      <span className="font-medium text-white">{commodity.symbol}</span>
+   897→                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+   898→                        commodity.changePercent >= 0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+   899→                      }`}>
+   900→                        {commodity.changePercent >= 0 ? '+' : ''}{commodity.changePercent.toFixed(2)}%
+   901→                      </span>
+   902→                    </div>
+   903→                    <div className="text-xl font-bold text-white mb-1">${formatNumber(commodity.price)}</div>
+   904→                    <div className="text-xs text-gray-500">{commodity.name} ({commodity.unit})</div>
+   905→                  </div>
+   906→                ))}
+   907→              </div>
+   908→            </section>
+   909→
+   910→            {/* Currency Pairs */}
+   911→            <section className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
+   912→              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+   913→                <DollarSign className="w-5 h-5 text-green-400" />
+   914→                Forex Markets
+   915→              </h2>
+   916→              <div className="overflow-x-auto">
+   917→                <table className="w-full">
+   918→                  <thead>
+   919→                    <tr className="border-b border-slate-800">
+   920→                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Pair</th>
+   921→                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-400">Rate</th>
+   922→                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-400">Change</th>
+   923→                      <th className="text-right py-3 px-4 text-sm font-medium text-gray-400">Pips</th>
+   924→                    </tr>
+   925→                  </thead>
+   926→                  <tbody className="divide-y divide-slate-800">
+   927→                    {CURRENCY_PAIRS.map(currency => (
+   928→                      <tr key={currency.pair} className="hover:bg-white/5 transition-colors">
+   929→                        <td className="py-3 px-4">
+   930→                          <div className="font-medium text-white">{currency.pair}</div>
+   931→                          <div className="text-xs text-gray-500">{currency.name}</div>
+   932→                        </td>
+   933→                        <td className="py-3 px-4 text-right font-mono text-white">{currency.rate.toFixed(4)}</td>
+   934→                        <td className={`py-3 px-4 text-right font-medium ${currency.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+   935→                          {currency.change >= 0 ? '+' : ''}{(currency.change * 100).toFixed(3)}%
+   936→                        </td>
+   937→                        <td className={`py-3 px-4 text-right font-medium ${currency.changePips >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+   938→                          {currency.changePips >= 0 ? '+' : ''}{currency.changePips}
+   939→                        </td>
+   940→                      </tr>
+   941→                    ))}
+   942→                  </tbody>
+   943→                </table>
+   944→              </div>
+   945→            </section>
+   946→          </div>
+   947→        )}
+   948→
+   949→        {/* ECONOMIC CALENDAR TAB */}
+   950→        {activeTab === 'calendar' && (
+   951→          <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
+   952→            <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+   953→              <Calendar className="w-5 h-5 text-purple-400" />
+   954→              Upcoming Economic Events
+   955→            </h2>
+   956→            
+   957→            <div className="space-y-4">
+   958→              {ECONOMIC_CALENDAR.map((event, idx) => (
+   959→                <div key={idx} className="flex items-center justify-between p-4 bg-black/30 rounded-lg hover:bg-black/50 transition-colors">
+   960→                  <div className="flex items-center gap-4">
+   961→                    <div className={`w-2 h-10 rounded-full ${
+   962→                      event.impact === 'high' ? 'bg-red-500' : event.impact === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+   963→                    }`}></div>
+   964→                    <div>
+   965→                      <h3 className="font-medium text-white">{event.name}</h3>
+   966→                      <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+   967→                        <span className="flex items-center gap-1">
+   968→                          <MapPin className="w-3 h-3" /> {event.currency}
+   969→                        </span>
+   970→                        <span className="flex items-center gap-1">
+   971→                          <Clock className="w-3 h-3" /> {event.date}
+   972→                        </span>
+   973→                      </div>
+   974→                    </div>
+   975→                  </div>
+   976→                  
+   977→                  <div className="flex items-center gap-6 text-sm">
+   978→                    <div className="text-center">
+   979→                      <div className="text-gray-500 text-xs">Previous</div>
+   980→                      <div className="text-gray-300 font-medium">{event.previous}</div>
+   981→                    </div>
+   982→                    <div className="text-center">
+   983→                      <div className="text-gray-500 text-xs">Forecast</div>
+   984→                      <div className="text-blue-400 font-medium">{event.forecast}</div>
+   985→                    </div>
+   986→                    <div className="text-center">
+   987→                      <div className="text-gray-500 text-xs">Actual</div>
+   988→                      <div className={`font-medium ${event.actual === 'Pending' ? 'text-yellow-400' : 'text-green-400'}`}>
+   989→                        {event.actual}
+   990→                      </div>
+   991→                    </div>
+   992→                  </div>
+   993→                </div>
+   994→              ))}
+   995→            </div>
+   996→          </div>
+   997→        )}
+   998→      </main>
+   999→
+  1000→      {/* Article Detail Modal */}
+  1001→      {selectedArticle && (
+  1002→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedArticle(null)}>
+  1003→          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+  1004→            <div className="sticky top-0 bg-slate-900 border-b border-slate-800 p-4 flex items-center justify-between">
+  1005→              <div className="flex items-center gap-3">
+  1006→                <span
+  1007→                  className="px-3 py-1 text-sm font-medium rounded-full"
+  1008→                  style={{ backgroundColor: `${NEWS_SOURCES[selectedArticle.source].color}20`, color: NEWS_SOURCES[selectedArticle.source].color }}
+  1009→                >
+  1010→                  {NEWS_SOURCES[selectedArticle.source].name}
+  1011→                </span>
+  1012→                <span className={`px-3 py-1 text-sm font-medium rounded-full ${
+  1013→                  selectedArticle.impact === 'critical' ? 'bg-red-500/20 text-red-400' :
+  1014→                  selectedArticle.impact === 'high' ? 'bg-orange-500/20 text-orange-400' :
+  1015→                  'bg-blue-500/20 text-blue-400'
+  1016→                }`}>
+  1017→                  {selectedArticle.impact.toUpperCase()} IMPACT
+  1018→                </span>
+  1019→              </div>
+  1020→              <button onClick={() => setSelectedArticle(null)} className="p-2 hover:bg-slate-800 rounded-lg transition-colors">
+  1021→                <X className="w-5 h-5 text-gray-400" />
+  1022→              </button>
+  1023→            </div>
+  1024→
+  1025→            <div className="p-6 space-y-6">
+  1026→              <h2 className="text-2xl font-bold text-white">{selectedArticle.title}</h2>
+  1027→              
+  1028→              <p className="text-gray-300 leading-relaxed">{selectedArticle.content || selectedArticle.summary}</p>
+  1029→
+  1030→              {/* Tags */}
+  1031→              <div className="flex flex-wrap gap-2">
+  1032→                {selectedArticle.tags.map(tag => (
+  1033→                  <span key={tag} className="px-3 py-1 bg-slate-800 text-gray-300 text-sm rounded-full flex items-center gap-1">
+  1034→                    <Tag className="w-3 h-3" /> {tag}
+  1035→                  </span>
+  1036→                ))}
+  1037→              </div>
+  1038→
+  1039→              {/* Supply Chain Analysis */}
+  1040→              <div className="bg-slate-800/50 rounded-xl p-5">
+  1041→                <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+  1042→                  <Ship className="w-5 h-5 text-cyan-400" />
+  1043→                  Supply Chain Impact Analysis
+  1044→                </h3>
+  1045→                
+  1046→                <div className="grid md:grid-cols-2 gap-6">
+  1047→                  <div>
+  1048→                    <h4 className="text-sm font-medium text-gray-400 mb-2">Affected Regions</h4>
+  1049→                    <div className="flex flex-wrap gap-2">
+  1050→                      {selectedArticle.supplyChainRelevance.affectedRegions.map(region => (
+  1051→                        <span key={region} className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded">{region}</span>
+  1052→                      ))}
+  1053→                    </div>
+  1054→                    
+  1055→                    <h4 className="text-sm font-medium text-gray-400 mb-2 mt-4">Affected Industries</h4>
+  1056→                    <div className="flex flex-wrap gap-2">
+  1057→                      {selectedArticle.supplyChainRelevance.affectedIndustries.map(industry => (
+  1058→                        <span key={industry} className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded">{industry}</span>
+  1059→                      ))}
+  1060→                    </div>
+  1061→                  </div>
+  1062→                  
+  1063→                  <div>
+  1064→                    <h4 className="text-sm font-medium text-gray-400 mb-2">Risk Implications</h4>
+  1065→                    <ul className="space-y-1">
+  1066→                      {selectedArticle.supplyChainRelevance.riskImplications.map((risk, i) => (
+  1067→                        <li key={i} className="flex items-start gap-2 text-sm text-red-300">
+  1068→                          <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" /> {risk}
+  1069→                        </li>
+  1070→                      ))}
+  1071→                    </ul>
+  1072→                    
+  1073→                    <h4 className="text-sm font-medium text-gray-400 mb-2 mt-4">Opportunities</h4>
+  1074→                    <ul className="space-y-1">
+  1075→                      {selectedArticle.supplyChainRelevance.opportunityIndicators.map((opp, i) => (
+  1076→                        <li key={i} className="flex items-start gap-2 text-sm text-green-300">
+  1077→                          <Zap className="w-4 h-4 mt-0.5 flex-shrink-0" /> {opp}
+  1078→                        </li>
+  1079→                      ))}
+  1080→                    </ul>
+  1081→                  </div>
+  1082→                </div>
+  1083→              </div>
+  1084→
+  1085→              {/* AI Insights */}
+  1086→              <div className="bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border border-indigo-500/30 rounded-xl p-5">
+  1087→                <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+  1088→                  <Brain className="w-5 h-5 text-indigo-400" />
+  1089→                  AI-Generated Insights
+  1090→                </h3>
+  1091→                
+  1092→                <div className="mb-4">
+  1093→                  <div className="flex items-center justify-between text-sm mb-2">
+  1094→                    <span className="text-gray-400">Confidence Level</span>
+  1095→                    <span className="text-indigo-400 font-medium">{(selectedArticle.aiInsights.confidenceLevel * 100).toFixed(0)}%</span>
+  1096→                  </div>
+  1097→                  <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+  1098→                    <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style={{ width: `${selectedArticle.aiInsights.confidenceLevel * 100}%` }}></div>
+  1099→                  </div>
+  1100→                </div>
+  1101→
+  1102→                <div className="grid md:grid-cols-2 gap-6">
+  1103→                  <div>
+  1104→                    <h4 className="text-sm font-medium text-gray-400 mb-2">Key Takeaways</h4>
+  1105→                    <ul className="space-y-2">
+  1106→                      {selectedArticle.aiInsights.keyTakeaways.map((takeaway, i) => (
+  1107→                        <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
+  1108→                          <CheckCircle2 className="w-4 h-4 mt-0.5 text-indigo-400 flex-shrink-0" /> {takeaway}
+  1109→                        </li>
+  1110→                      ))}
+  1111→                    </ul>
+  1112→                  </div>
+  1113→                  
+  1114→                  <div>
+  1115→                    <h4 className="text-sm font-medium text-gray-400 mb-2">Predicted Impact</h4>
+  1116→                    <p className="text-sm text-gray-300">{selectedArticle.aiInsights.predictedImpact}</p>
+  1117→                    
+  1118→                    {selectedArticle.aiInsights.similarEvents.length > 0 && (
+  1119→                      <>
+  1120→                        <h4 className="text-sm font-medium text-gray-400 mt-4 mb-2">Historical Parallels</h4>
+  1121→                        <ul className="space-y-2">
+  1122→                          {selectedArticle.aiInsights.similarEvents.map((event, i) => (
+  1123→                            <li key={i} className="text-sm text-gray-400">
+  1124→                              <span className="text-white">{event.title}</span> → {event.outcome}
+  1125→                            </li>
+  1126→                          ))}
+  1127→                        </ul>
+  1128→                      </>
+  1129→                    )}
+  1130→                  </div>
+  1131→                </div>
+  1132→              </div>
+  1133→
+  1134→              {/* Actions */}
+  1135→              <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+  1136→                <div className="flex items-center gap-3">
+  1137→                  <button
+  1138→                    onClick={() => toggleBookmark(selectedArticle.id)}
+  1139→                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+  1140→                      bookmarkedIds.has(selectedArticle.id) ? 'bg-yellow-500/20 text-yellow-400' : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
+  1141→                    }`}
+  1142→                  >
+  1143→                    <Bookmark className="w-4 h-4" fill={bookmarkedIds.has(selectedArticle.id) ? 'currentColor' : 'none'} />
+  1144→                    {bookmarkedIds.has(selectedArticle.id) ? 'Saved' : 'Save'}
+  1145→                  </button>
+  1146→                  <button className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-gray-400 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors">
+  1147→                    <Share2 className="w-4 h-4" /> Share
+  1148→                  </button>
+  1149→                </div>
+  1150→                
+  1151→                <a
+  1152→                  href={selectedArticle.url}
+  1153→                  target="_blank"
+  1154→                  rel="noopener noreferrer"
+  1155→                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+  1156→                >
+  1157→                  Read Full Article <ExternalLink className="w-4 h-4" />
+  1158→                </a>
+  1159→              </div>
+  1160→            </div>
+  1161→          </div>
+  1162→        </div>
+  1163→      )}
+  1164→
+  1165→      {/* Footer */}
+  1166→      <footer className="mt-16 border-t border-slate-800 py-8 text-center text-sm text-gray-500">
+  1167→        <p>Data aggregated from IMF, SCO, Federal Reserve, WSJ, Bloomberg, Reuters, CNBC, FT, WEF, and other authoritative sources.</p>
+  1168→        <p className="mt-2">AI-powered analysis provided for informational purposes. Not financial advice.</p>
+  1169→      </footer>
+  1170→    </div>
+  1171→  )
+  1172→}
+  1173→
+  1174→// Additional icons used
+  1175→function CheckCircle2(props: any) {
+  1176→  return (
+  1177→    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  1178→      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+  1179→      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+  1180→    </svg>
+  1181→  )
+  1182→}
+  1183→
+  1184→function Brain(props: any) {
+  1185→  return (
+  1186→    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  1187→      <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path>
+  1188→      <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path>
+  1189→    </svg>
+  1190→  )
+  1191→}
+  1192→

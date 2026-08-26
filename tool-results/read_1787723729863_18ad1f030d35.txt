@@ -1,0 +1,520 @@
+   900→   900→              <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-300">
+   901→   901→                <Factory className="w-4 h-4" /> 47 Facilities Worldwide
+   902→   902→              </div>
+   903→   903→            </div>
+   904→   904→          </div>
+   905→   905→        </div>
+   906→   906→      </div>
+   907→   907→
+   908→   908→      {/* Case Study Cards */}
+   909→   909→      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+   910→   910→        {[
+   911→   911→          {
+   912→   912→            industry: 'Retail',
+   913→   913→            icon: Store,
+   914→   914→            title: 'Fortune 500 Retailer: Omnichannel Fulfillment',
+   915→   915→            results: ['35% faster fulfillment', '22% inventory reduction', '99.2% order accuracy'],
+   916→   916→            color: 'from-green-500/20 to-emerald-500/20',
+   917→   917→            borderColor: 'border-green-500/30'
+   918→   918→          },
+   919→   919→          {
+   920→   920→            industry: 'Automotive',
+   921→   921→            icon: Car, // Using Car if available, else Factory
+   922→   922→            title: 'Auto Manufacturer: Just-in-Time Optimization',
+   923→   923→            results: ['60% less stockouts', '28% WIP reduction', '15% cost savings'],
+   924→   924→            color: 'from-red-500/20 to-orange-500/20',
+   925→   925→            borderColor: 'border-red-500/30'
+   926→   926→          },
+   927→   927→          {
+   928→   928→            industry: 'Pharma',
+   929→   929→            icon: Hospital,
+   930→   930→            title: 'Pharma Company: Cold Chain Compliance',
+   931→   931→            results: ['100% compliance rate', '45% waste reduction', 'Real-time tracking'],
+   932→   932→            color: 'from-cyan-500/20 to-blue-500/20',
+   933→   933→            borderColor: 'border-cyan-500/30'
+   934→   934→          },
+   935→   935→          {
+   936→   936→            industry: 'Logistics',
+   937→   937→            icon: Truck,
+   938→   938→            title: '3PL Provider: Network Optimization',
+   939→   939→            results: ['25% fuel savings', '30% route efficiency', 'Dynamic rerouting'],
+   940→   940→            color: 'from-amber-500/20 to-yellow-500/20',
+   941→   941→            borderColor: 'border-amber-500/30'
+   942→   942→          },
+   943→   943→          {
+   944→   944→            industry: 'Food & Beverage',
+   945→   945→            icon: UtensilsCrossed,
+   946→   946→            title: 'Food Producer: Freshness Optimization',
+   947→   947→            results: ['50% shelf-life gain', 'Zero recalls', 'Farm-to-fork trace'],
+   948→   948→            color: 'from-lime-500/20 to-green-500/20',
+   949→   949→            borderColor: 'border-lime-500/30'
+   950→   950→          },
+   951→   951→          {
+   952→   952→            industry: 'Technology',
+   953→   953→            icon: Cpu,
+   954→   954→            title: 'Tech Giant: Chip Shortage Mitigation',
+   955→   955→            results: ['90% supply security', 'Alternative sourcing', 'Demand sensing'],
+   956→   956→            color: 'from-violet-500/20 to-purple-500/20',
+   957→   957→            borderColor: 'border-violet-500/30'
+   958→   958→          }
+   959→   959→        ].map((study, idx) => (
+   960→   960→          <div key={idx} className={`bg-gradient-to-br ${study.color} ${study.borderColor} border rounded-xl p-6 hover:scale-[1.02] transition-transform duration-300`}>
+   961→   961→            <div className="flex items-center gap-3 mb-4">
+   962→   962→              <div className="p-2 bg-white/10 rounded-lg">
+   963→   963→                <study.icon className="w-6 h-6 text-white" />
+   964→   964→              </div>
+   965→   965→              <span className="text-sm font-medium text-gray-300">{study.industry}</span>
+   966→   966→            </div>
+   967→   967→            <h4 className="text-lg font-semibold text-white mb-4">{study.title}</h4>
+   968→   968→            <ul className="space-y-2">
+   969→   969→              {study.results.map((result, rIdx) => (
+   970→   970→                <li key={rIdx} className="flex items-center gap-2 text-sm text-gray-300">
+   971→   971→                  <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" /> {result}
+   972→   972→                </li>
+   973→   973→              ))}
+   974→   974→            </ul>
+   975→   975→          </div>
+   976→   976→        ))}
+   977→   977→      </div>
+   978→   978→    </div>
+   979→   979→  )
+   980→   980→
+   981→   981→  // Commercial Models Section
+   982→   982→  const CommercialModelsSection = () => (
+   983→   983→    <div className="space-y-6">
+   984→   984→      {/* Pricing Tiers Overview */}
+   985→   985→      <div className="bg-gradient-to-r from-emerald-900/30 via-teal-900/20 to-cyan-900/30 border border-emerald-500/30 rounded-xl p-8">
+   986→   986→        <div className="text-center mb-8">
+   987→   987→          <h3 className="text-3xl font-bold text-white mb-2">Flexible Commercial Models</h3>
+   988→   988→          <p className="text-gray-300 text-lg">Scalable pricing designed for organizations of all sizes</p>
+   989→   989→        </div>
+   990→   990→
+   991→   991→        <div className="grid md:grid-cols-3 gap-6">
+   992→   992→          {/* Free Tier */}
+   993→   993→          <div className="bg-slate-900/60 border border-slate-700 rounded-xl p-6">
+   994→   994→            <div className="text-center mb-6">
+   995→   995→              <h4 className="text-xl font-semibold text-white mb-2">Starter</h4>
+   996→   996→              <div className="text-4xl font-bold text-white mb-1">Free</div>
+   997→   997→              <p className="text-gray-400 text-sm">Perfect for evaluation</p>
+   998→   998→            </div>
+   999→   999→            <ul className="space-y-3 mb-6">
+  1000→  1000→              {['Up to 50 suppliers', 'Basic analytics', 'Community support', '5 AI queries/day', 'Standard reports'].map((feature, idx) => (
+  1001→  1001→                <li key={idx} className="flex items-center gap-2 text-sm text-gray-300">
+  1002→  1002→                  <CheckCircle2 className="w-4 h-4 text-green-400" /> {feature}
+  1003→  1003→                </li>
+  1004→  1004→              ))}
+  1005→  1005→            </ul>
+  1006→  1006→            <button className="w-full py-2.5 border border-slate-600 text-white rounded-lg hover:bg-slate-800 transition-colors">
+  1007→  1007→              Get Started
+  1008→  1008→            </button>
+  1009→  1009→          </div>
+  1010→  1010→
+  1011→  1011→          {/* Pro Tier */}
+  1012→  1012→          <div className="bg-gradient-to-b from-blue-900/40 to-blue-900/20 border-2 border-blue-500 rounded-xl p-6 relative">
+  1013→  1013→            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">
+  1014→  1014→              MOST POPULAR
+  1015→  1015→            </div>
+  1016→  1016→            <div className="text-center mb-6">
+  1017→  1017→              <h4 className="text-xl font-semibold text-white mb-2">Professional</h4>
+  1018→  1018→              <div className="text-4xl font-bold text-white mb-1">$99<span className="text-lg text-gray-400">/mo</span></div>
+  1019→  1019→              <p className="text-gray-400 text-sm">For growing teams</p>
+  1020→  1020→            </div>
+  1021→  1021→            <ul className="space-y-3 mb-6">
+  1022→  1022→              {['Up to 500 suppliers', 'Advanced AI models', 'Priority support', '500 AI queries/day', 'Custom dashboards', 'API access'].map((feature, idx) => (
+  1023→  1023→                <li key={idx} className="flex items-center gap-2 text-sm text-gray-300">
+  1024→  1024→                  <CheckCircle2 className="w-4 h-4 text-blue-400" /> {feature}
+  1025→  1025→                </li>
+  1026→  1026→              ))}
+  1027→  1027→            </ul>
+  1028→  1028→            <button className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+  1029→  1029→              Start Free Trial
+  1030→  1030→            </button>
+  1031→  1031→          </div>
+  1032→  1032→
+  1033→  1033→          {/* Enterprise Tier */}
+  1034→  1034→          <div className="bg-gradient-to-b from-purple-900/40 to-purple-900/20 border-2 border-purple-500 rounded-xl p-6">
+  1035→  1035→            <div className="text-center mb-6">
+  1036→  1036→              <h4 className="text-xl font-semibold text-white mb-2">Enterprise</h4>
+  1037→  1037→              <div className="text-4xl font-bold text-white mb-1">Custom</div>
+  1038→  1038→              <p className="text-gray-400 text-sm">For large organizations</p>
+  1039→  1039→            </div>
+  1040→  1040→            <ul className="space-y-3 mb-6">
+  1041→  1041→              {['Unlimited suppliers', 'Full AI suite', 'Dedicated support', 'Unlimited queries', 'Custom integrations', 'SLA guarantees', 'On-premise option'].map((feature, idx) => (
+  1042→  1042→                <li key={idx} className="flex items-center gap-2 text-sm text-gray-300">
+  1043→  1043→                  <CheckCircle2 className="w-4 h-4 text-purple-400" /> {feature}
+  1044→  1044→                </li>
+  1045→  1045→              ))}
+  1046→  1046→            </ul>
+  1047→  1047→            <button className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors">
+  1048→  1048→              Contact Sales
+  1049→  1049→            </button>
+  1050→  1050→          </div>
+  1051→  1051→        </div>
+  1052→  1052→      </div>
+  1053→  1053→
+  1054→  1054→      {/* Value Metrics */}
+  1055→  1055→      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  1056→  1056→        {[
+  1057→  1057→          { metric: '340%', label: 'Average ROI', icon: TrendingUp, desc: 'Within first year' },
+  1058→  1058→          { metric: '6 months', label: 'Avg Payback', icon: Clock, desc: 'Time to value' },
+  1059→  1059→          { metric: '$2.1M', label: 'Avg Annual Savings', icon: DollarSign, desc: 'Per enterprise client' },
+  1060→  1060→          { metric: '99.7%', label: 'Customer Retention', icon: Users, desc: 'Industry leading' }
+  1061→  1061→        ].map((item, idx) => (
+  1062→  1062→          <div key={idx} className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 text-center">
+  1063→  1063→            <item.icon className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
+  1064→  1064→            <div className="text-3xl font-bold text-white mb-1">{item.metric}</div>
+  1065→  1065→            <div className="text-sm font-medium text-gray-300">{item.label}</div>
+  1066→  1066→            <div className="text-xs text-gray-500 mt-1">{item.desc}</div>
+  1067→  1067→          </div>
+  1068→  1068→        ))}
+  1069→  1069→      </div>
+  1070→  1070→
+  1071→  1071→      {/* Implementation Options */}
+  1072→  1072→      <div className="bg-black/30 border border-gray-800 rounded-xl p-6">
+  1073→  1073→        <h4 className="text-xl font-semibold text-white mb-6">Deployment & Engagement Models</h4>
+  1074→  1074→        <div className="grid md:grid-cols-3 gap-6">
+  1075→  1075→          <div className="text-center p-4">
+  1076→  1076→            <Cloud className="w-12 h-12 text-blue-400 mx-auto mb-3" />
+  1077→  1077→            <h5 className="font-semibold text-white mb-2">Cloud SaaS</h5>
+  1078→  1078→            <p className="text-sm text-gray-400">Fully managed cloud deployment with automatic updates and scaling</p>
+  1079→  1079→          </div>
+  1080→  1080→          <div className="text-center p-4">
+  1081→  1081→            <Server className="w-12 h-12 text-green-400 mx-auto mb-3" />
+  1082→  1082→            <h5 className="font-semibold text-white mb-2">Hybrid Cloud</h5>
+  1083→  1083→            <p className="text-sm text-gray-400">Combine cloud flexibility with on-premises data residency requirements</p>
+  1084→  1084→          </div>
+  1085→  1085→          <div className="text-center p-4">
+  1086→  1086→            <Building2 className="w-12 h-12 text-purple-400 mx-auto mb-3" />
+  1087→  1087→            <h5 className="font-semibold text-white mb-2">Private Deployment</h5>
+  1088→  1088→            <p className="text-sm text-gray-400">Full on-premise or private cloud installation for maximum control</p>
+  1089→  1089→          </div>
+  1090→  1090→        </div>
+  1091→  1091→      </div>
+  1092→  1092→    </div>
+  1093→  1093→  )
+  1094→  1094→
+  1095→  1095→  // Render active section content
+  1096→  1096→  const renderContent = () => {
+  1097→  1097→    switch (activeTab) {
+  1098→  1098→      case 'governance': return <GovernanceSection />
+  1099→  1099→      case 'esg': return <ESGSection />
+  1100→  1100→      case 'analytics': return <AnalyticsAISection />
+  1101→  1101→      case 'cx': return <CustomerExperienceSection />
+  1102→  1102→      case 'case-studies': return <CaseStudiesSection />
+  1103→  1103→      case 'commercial': return <CommercialModelsSection />
+  1104→  1104→      default: return <OverviewContent />
+  1105→  1105→    }
+  1106→  1106→  }
+  1107→  1107→
+  1108→  1108→  // Overview Content
+  1109→  1109→  const OverviewContent = () => (
+  1110→  1110→    <div className="space-y-8">
+  1111→  1111→      {/* Quick Stats */}
+  1112→  1112→      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+  1113→  1113→        {[
+  1114→  1114→          { label: 'Active Users', value: '12,450+', icon: Users, color: 'text-blue-400' },
+  1115→  1115→          { label: 'Data Points', value: '2.4B+', icon: Database, color: 'text-green-400' },
+  1116→  1116→          { label: 'AI Predictions', value: '99.2%', icon: Brain, color: 'text-purple-400' },
+  1117→  1117→          { label: 'Global Coverage', value: '140+', icon: Globe, color: 'text-amber-400' }
+  1118→  1118→        ].map((stat, idx) => (
+  1119→  1119→          <div key={idx} className="bg-slate-900/50 border border-slate-800 rounded-xl p-5">
+  1120→  1120→            <stat.icon className={`w-8 h-8 ${stat.color} mb-3`} />
+  1121→  1121→            <div className="text-2xl font-bold text-white">{stat.value}</div>
+  1122→  1122→            <div className="text-sm text-gray-400">{stat.label}</div>
+  1123→  1123→          </div>
+  1124→  1124→        ))}
+  1125→  1125→      </div>
+  1126→  1126→
+  1127→  1127→      {/* Featured News */}
+  1128→  1128→      <div className="bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border border-indigo-500/30 rounded-xl p-6">
+  1129→  1129→        <div className="flex items-center justify-between mb-4">
+  1130→  1130→          <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+  1131→  1131→            <Newspaper className="w-5 h-5 text-indigo-400" />
+  1132→  1132→            Latest Supply Chain Intelligence
+  1133→  1133→          </h3>
+  1134→  1134→          <button 
+  1135→  1135→            onClick={refreshNews}
+  1136→  1136→            disabled={isRefreshing}
+  1137→  1137→            className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-800 text-white rounded-lg text-sm transition-colors"
+  1138→  1138→          >
+  1139→  1139→            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+  1140→  1140→            Refresh
+  1141→  1141→          </button>
+  1142→  1142→        </div>
+  1143→  1143→        
+  1144→  1144→        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+  1145→  1145→          {filteredNews.slice(0, 6).map((item) => (
+  1146→  1146→            <article key={item.id} className="bg-black/30 rounded-lg p-4 hover:bg-black/50 transition-colors group cursor-pointer">
+  1147→  1147→              <div className="flex items-start justify-between gap-3 mb-2">
+  1148→  1148→                <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+  1149→  1149→                  item.impact === 'high' ? 'bg-red-500/20 text-red-400' :
+  1150→  1150→                  item.impact === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+  1151→  1151→                  'bg-gray-500/20 text-gray-400'
+  1152→  1152→                }`}>
+  1153→  1153→                  {item.impact.toUpperCase()}
+  1154→  1154→                </span>
+  1155→  1155→                <span className="text-xs text-gray-500 whitespace-nowrap">
+  1156→  1156→                  {formatTimeAgo(item.timestamp)}
+  1157→  1157→                </span>
+  1158→  1158→              </div>
+  1159→  1159→              <h4 className="font-medium text-white group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
+  1160→  1160→                {item.title}
+  1161→  1161→              </h4>
+  1162→  1162→              <p className="text-sm text-gray-400 line-clamp-2">{item.summary}</p>
+  1163→  1163→              <div className="flex items-center justify-between mt-3">
+  1164→  1164→                <span className="text-xs text-gray-500">{item.source}</span>
+  1165→  1165→                <ExternalLink className="w-4 h-4 text-gray-600 group-hover:text-blue-400 transition-colors" />
+  1166→  1166→              </div>
+  1167→  1167→            </article>
+  1168→  1168→          ))}
+  1169→  1169→        </div>
+  1170→  1170→      </div>
+  1171→  1171→
+  1172→  1172→      {/* Financial Markets Widget */}
+  1173→  1173→      <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
+  1174→  1174→        <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+  1175→  1175→          <TrendingUp className="w-5 h-5 text-green-400" />
+  1176→  1176→          Global Financial Markets
+  1177→  1177→        </h3>
+  1178→  1178→        
+  1179→  1179→        {/* Indices */}
+  1180→  1180→        <div className="mb-6">
+  1181→  1181→          <h4 className="text-sm font-medium text-gray-400 mb-3">Major Indices</h4>
+  1182→  1182→          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+  1183→  1183→            {financialData.indices.map((index, idx) => (
+  1184→  1184→              <div key={idx} className="bg-black/30 rounded-lg p-3">
+  1185→  1185→                <div className="text-xs text-gray-500 mb-1">{index.name}</div>
+  1186→  1186→                <div className="text-lg font-semibold text-white">{index.value}</div>
+  1187→  1187→                <div className={`text-xs font-medium ${index.positive ? 'text-green-400' : 'text-red-400'}`}>
+  1188→  1188→                  {index.change}
+  1189→  1189→                </div>
+  1190→  1190→              </div>
+  1191→  1191→            ))}
+  1192→  1192→          </div>
+  1193→  1193→        </div>
+  1194→  1194→
+  1195→  1195→        {/* Commodities & Currencies */}
+  1196→  1196→        <div className="grid md:grid-cols-2 gap-6">
+  1197→  1197→          <div>
+  1198→  1198→            <h4 className="text-sm font-medium text-gray-400 mb-3">Key Commodities</h4>
+  1199→  1199→            <div className="space-y-2">
+  1200→  1200→              {financialData.commodities.map((commodity, idx) => (
+  1201→  1201→                <div key={idx} className="flex items-center justify-between bg-black/30 rounded px-3 py-2">
+  1202→  1202→                  <span className="text-sm text-gray-300">{commodity.name}</span>
+  1203→  1203→                  <div className="text-right">
+  1204→  1204→                    <span className="text-sm text-white font-medium mr-2">{commodity.price}</span>
+  1205→  1205→                    <span className={`text-xs ${commodity.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+  1206→  1206→                      {commodity.change}
+  1207→  1207→                    </span>
+  1208→  1208→                  </div>
+  1209→  1209→                </div>
+  1210→  1210→              ))}
+  1211→  1211→            </div>
+  1212→  1212→          </div>
+  1213→  1213→          
+  1214→  1214→          <div>
+  1215→  1215→            <h4 className="text-sm font-medium text-gray-400 mb-3">Currency Pairs</h4>
+  1216→  1216→            <div className="space-y-2">
+  1217→  1217→              {financialData.currencies.map((currency, idx) => (
+  1218→  1218→                <div key={idx} className="flex items-center justify-between bg-black/30 rounded px-3 py-2">
+  1219→  1219→                  <span className="text-sm text-gray-300">{currency.name}</span>
+  1220→  1220→                  <div className="text-right">
+  1221→  1221→                    <span className="text-sm text-white font-medium mr-2">{currency.rate}</span>
+  1222→  1222→                    <span className={`text-xs ${currency.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
+  1223→  1223→                      {currency.change}
+  1224→  1224→                    </span>
+  1225→  1225→                  </div>
+  1226→  1226→                </div>
+  1227→  1227→              ))}
+  1228→  1228→            </div>
+  1229→  1229→          </div>
+  1230→  1230→        </div>
+  1231→  1231→      </div>
+  1232→  1232→
+  1233→  1233→      {/* Quick Access Grid */}
+  1234→  1234→      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+  1235→  1235→        {[
+  1236→  1236→          { tab: 'governance', icon: Scale, label: 'Governance', color: 'from-blue-600 to-blue-800' },
+  1237→  1237→          { tab: 'esg', icon: Leaf, label: 'ESG', color: 'from-green-600 to-emerald-800' },
+  1238→  1238→          { tab: 'analytics', icon: Brain, label: 'Analytics/AI', color: 'from-purple-600 to-indigo-800' },
+  1239→  1239→          { tab: 'cx', icon: Smile, label: 'Experience', color: 'from-amber-600 to-orange-800' },
+  1240→  1240→          { tab: 'case-studies', icon: Building2, label: 'Case Studies', color: 'from-cyan-600 to-teal-800' },
+  1241→  1241→          { tab: 'commercial', icon: DollarSign, label: 'Commercial', color: 'from-emerald-600 to-green-800' }
+  1242→  1242→        ].map((item, idx) => (
+  1243→  1243→          <button
+  1244→  1244→            key={idx}
+  1245→  1245→            onClick={() => setActiveTab(item.tab)}
+  1246→  1246→            className={`bg-gradient-to-br ${item.color} rounded-xl p-4 text-center hover:scale-105 transition-transform duration-200`}
+  1247→  1247→          >
+  1248→  1248→            <item.icon className="w-8 h-8 text-white mx-auto mb-2" />
+  1249→  1249→            <span className="text-sm font-medium text-white">{item.label}</span>
+  1250→  1250→          </button>
+  1251→  1251→        ))}
+  1252→  1252→      </div>
+  1253→  1253→    </div>
+  1254→  1254→  )
+  1255→  1255→
+  1256→  1256→  // Helper function for time formatting
+  1257→  1257→  const formatTimeAgo = (date: Date): string => {
+  1258→  1258→    const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+  1259→  1259→    if (seconds < 60) return `${seconds}s ago`
+  1260→  1260→    const minutes = Math.floor(seconds / 60)
+  1261→  1261→    if (minutes < 60) return `${minutes}m ago`
+  1262→  1262→    const hours = Math.floor(minutes / 60)
+  1263→  1263→    if (hours < 24) return `${hours}h ago`
+  1264→  1264→    const days = Math.floor(hours / 24)
+  1265→  1265→    return `${days}d ago`
+  1266→  1266→  }
+  1267→  1267→
+  1268→  1268→  // Tab configuration
+  1269→  1269→  const tabs = [
+  1270→  1270→    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  1271→  1271→    { id: 'governance', label: 'Governance', icon: Scale },
+  1272→  1272→    { id: 'esg', label: 'ESG', icon: Leaf },
+  1273→  1273→    { id: 'analytics', label: 'Analytics/AI', icon: Brain },
+  1274→  1274→    { id: 'cx', label: 'Customer Experience', icon: Smile },
+  1275→  1275→    { id: 'case-studies', label: 'Case Studies', icon: Building2 },
+  1276→  1276→    { id: 'commercial', label: 'Commercial Models', icon: DollarSign }
+  1277→  1277→  ]
+  1278→  1278→
+  1279→  1279→  return (
+  1280→  1280→    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+  1281→  1281→      {/* Header */}
+  1282→  1282→      <header className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-md border-b border-slate-800">
+  1283→  1283→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  1284→  1284→          <div className="flex items-center justify-between h-16">
+  1285→  1285→            <div className="flex items-center gap-4">
+  1286→  1286→              <h1 className="text-xl font-bold text-white flex items-center gap-2">
+  1287→  1287→                <BookOpen className="w-6 h-6 text-blue-400" />
+  1288→  1288→                Resources Center
+  1289→  1289→              </h1>
+  1290→  1290→              <span className="hidden sm:block text-sm text-gray-500">|</span>
+  1291→  1291→              <span className="hidden sm:block text-sm text-gray-400">Knowledge Hub & Intelligence</span>
+  1292→  1292→            </div>
+  1293→  1293→            
+  1294→  1294→            <div className="flex items-center gap-4">
+  1295→  1295→              <div className="relative">
+  1296→  1296→                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+  1297→  1297→                <input
+  1298→  1298→                  type="text"
+  1299→  1299→                  placeholder="Search resources..."
+  1300→  1300→                  className="pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 w-64"
+  1301→  1301→                />
+  1302→  1302→              </div>
+  1303→  1303→              
+  1304→  1304→              <button className="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm text-gray-300 transition-colors">
+  1305→  1305→                <Bell className="w-4 h-4" />
+  1306→  1306→                <span className="hidden sm:inline">Alerts</span>
+  1307→  1307→                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+  1308→  1308→              </button>
+  1309→  1309→            </div>
+  1310→  1310→          </div>
+  1311→  1311→        </div>
+  1312→  1312→      </header>
+  1313→  1313→
+  1314→  1314→      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  1315→  1315→        {/* Navigation Tabs */}
+  1316→  1316→        <nav className="mb-8 overflow-x-auto pb-2">
+  1317→  1317→          <div className="flex gap-2 min-w-max">
+  1318→  1318→            {tabs.map((tab) => (
+  1319→  1319→              <button
+  1320→  1320→                key={tab.id}
+  1321→  1321→                onClick={() => setActiveTab(tab.id)}
+  1322→  1322→                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+  1323→  1323→                  activeTab === tab.id
+  1324→  1324→                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
+  1325→  1325→                    : 'bg-slate-800 text-gray-400 hover:bg-slate-700 hover:text-white'
+  1326→  1326→                }`}
+  1327→  1327→              >
+  1328→  1328→                <tab.icon className="w-4 h-4" />
+  1329→  1329→                {tab.label}
+  1330→  1330→              </button>
+  1331→  1331→            ))}
+  1332→  1332→          </div>
+  1333→  1333→        </nav>
+  1334→  1334→
+  1335→  1335→        {/* Category Filter (for overview) */}
+  1336→  1336→        {activeTab === 'overview' && (
+  1337→  1337→          <div className="mb-6 flex items-center gap-4">
+  1338→  1338→            <Filter className="w-4 h-4 text-gray-500" />
+  1339→  1339→            <select
+  1340→  1340→              value={selectedCategory}
+  1341→  1341→              onChange={(e) => setSelectedCategory(e.target.value)}
+  1342→  1342→              className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+  1343→  1343→            >
+  1344→  1344→              {categories.map((cat) => (
+  1345→  1345→                <option key={cat} value={cat}>
+  1346→  1346→                  {cat === 'all' ? 'All Categories' : cat}
+  1347→  1347→                </option>
+  1348→  1348→              ))}
+  1349→  1349→            </select>
+  1350→  1350→            <span className="text-sm text-gray-500">
+  1351→  1351→              Showing {filteredNews.length} articles • Last updated: {lastRefresh.toLocaleTimeString()}
+  1352→  1352→            </span>
+  1353→  1353→          </div>
+  1354→  1354→        )}
+  1355→  1355→
+  1356→  1356→        {/* Main Content Area */}
+  1357→  1357→        <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+  1358→  1358→          {renderContent()}
+  1359→  1359→        </section>
+  1360→  1360→      </main>
+  1361→  1361→
+  1362→  1362→      {/* Footer */}
+  1363→  1363→      <footer className="mt-16 border-t border-slate-800 bg-slate-950/50">
+  1364→  1364→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  1365→  1365→          <div className="grid md:grid-cols-4 gap-8">
+  1366→  1366→            <div>
+  1367→  1367→              <h4 className="font-semibold text-white mb-4">Resources</h4>
+  1368→  1368→              <ul className="space-y-2 text-sm text-gray-400">
+  1369→  1369→                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
+  1370→  1370→                <li><a href="#" className="hover:text-white transition-colors">API Reference</a></li>
+  1371→  1371→                <li><a href="#" className="hover:text-white transition-colors">Guides & Tutorials</a></li>
+  1372→  1372→                <li><a href="#" className="hover:text-white transition-colors">Video Library</a></li>
+  1373→  1373→              </ul>
+  1374→  1374→            </div>
+  1375→  1375→            <div>
+  1376→  1376→              <h4 className="font-semibold text-white mb-4">Research</h4>
+  1377→  1377→              <ul className="space-y-2 text-sm text-gray-400">
+  1378→  1378→                <li><a href="#" className="hover:text-white transition-colors">Industry Reports</a></li>
+  1379→  1379→                <li><a href="#" className="hover:text-white transition-colors">Case Studies</a></li>
+  1380→  1380→                <li><a href="#" className="hover:text-white transition-colors">White Papers</a></li>
+  1381→  1381→                <li><a href="#" className="hover:text-white transition-colors">Webinars</a></li>
+  1382→  1382→              </ul>
+  1383→  1383→            </div>
+  1384→  1384→            <div>
+  1385→  1385→              <h4 className="font-semibold text-white mb-4">Connect</h4>
+  1386→  1386→              <ul className="space-y-2 text-sm text-gray-400">
+  1387→  1387→                <li><a href="#" className="hover:text-white transition-colors">Community Forum</a></li>
+  1388→  1388→                <li><a href="#" className="hover:text-white transition-colors">Slack Channel</a></li>
+  1389→  1389→                <li><a href="#" className="hover:text-white transition-colors">Events Calendar</a></li>
+  1390→  1390→                <li><a href="#" className="hover:text-white transition-colors">Newsletter</a></li>
+  1391→  1391→              </ul>
+  1392→  1392→            </div>
+  1393→  1393→            <div>
+  1394→  1394→              <h4 className="font-semibold text-white mb-4">Legal</h4>
+  1395→  1395→              <ul className="space-y-2 text-sm text-gray-400">
+  1396→  1396→                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+  1397→  1397→                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+  1398→  1398→                <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
+  1399→  1399→                <li><a href="#" className="hover:text-white transition-colors">Compliance</a></li>
+  1400→  1400→              </ul>
+  1401→  1401→            </div>
+  1402→  1402→          </div>
+  1403→  1403→          
+  1404→  1404→          <div className="mt-8 pt-8 border-t border-slate-800 text-center text-sm text-gray-500">
+  1405→  1405→            <p>&copy; 2025 AI Supply Chain Platform. All rights reserved. | Built for the future of supply chain intelligence.</p>
+  1406→  1406→          </div>
+  1407→  1407→        </div>
+  1408→  1408→      </footer>
+  1409→  1409→    </div>
+  1410→  1410→  )
+  1411→  1411→}
+  1412→  1412→
+  1413→  1413→// Additional icons used but not imported above
+  1414→  1414→function Car(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18 10l-2-4H8L6 10l-2.5 1.1C2.7 11.3 2 12.1 2 13v3c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg> }
+  1415→  1415→function Hospital(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg> }
+  1416→  1416→function UtensilsCrossed(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg> }
+  1417→  1417→function Cloud(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg> }
+  1418→  1418→function Server(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg> }
+  1419→  1419→
