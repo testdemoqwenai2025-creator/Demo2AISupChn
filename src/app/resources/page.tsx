@@ -26,7 +26,10 @@ import {
   RefreshCw, Bell, Filter, Search, BookOpen, Lightbulb,
   RSS, Newspaper, Radio, Tv, Globe, AlertTriangle,
   CheckCircle2, Info, ArrowUpRight, Download,
-  Layers, Grid3x3, LayoutDashboard, Settings, Zap as Bolt
+  Layers, Grid3x3, LayoutDashboard, Settings, Zap as Bolt,
+  // Ontology Icons
+  CircleHelp, Link, FolderTree, Atom, GraduationCap,
+  ShieldCheck, Sparkles as MagicWand
 } from 'lucide-react'
 
 // Types
@@ -2209,6 +2212,7 @@ export default function ResourcesPage() {
       case 'commercial': return <CommercialModelsSection />
       case 'autonomous-agents': return <AutonomousAgentsSection />
       case 'ecosystem': return <EcosystemMarketplaceSection />
+      case 'ontology': return <OntologyKnowledgeSection />
       default: return <OverviewContent />
     }
   }
@@ -2385,7 +2389,8 @@ export default function ResourcesPage() {
     { id: 'case-studies', label: 'Case Studies', icon: Building2 },
     { id: 'commercial', label: 'Commercial Models', icon: DollarSign },
     { id: 'autonomous-agents', label: 'Phase 5: Agents', icon: Bot },
-    { id: 'ecosystem', label: 'Phase 6: Ecosystem', icon: Store }
+    { id: 'ecosystem', label: 'Phase 6: Ecosystem', icon: Store },
+    { id: 'ontology', label: 'Knowledge Ontology', icon: CircleHelp }
   ]
 
   return (
@@ -2518,6 +2523,754 @@ export default function ResourcesPage() {
           </div>
         </div>
       </footer>
+    </div>
+  )
+}
+
+// ============================================
+// ONTOLOGY & KNOWLEDGE SYSTEM COMPONENT
+// ============================================
+
+// Core Domain Concepts - The Semantic Foundation
+const domainConcepts = [
+  {
+    id: 'supply-chain',
+    name: 'Supply Chain',
+    category: 'Core Domain',
+    definition: 'An interconnected network of organizations, activities, resources, and technologies involved in creating and delivering a product or service from raw materials to end customer.',
+    attributes: ['Visibility', 'Resilience', 'Efficiency', 'Sustainability'],
+    relationships: ['enables', 'requires', 'optimizes'],
+    icon: Link,
+    color: 'from-blue-500 to-cyan-500'
+  },
+  {
+    id: 'ai-ml',
+    name: 'Artificial Intelligence & Machine Learning',
+    category: 'Technology Layer',
+    definition: 'Computational systems that perform tasks requiring human-like intelligence, including predictive analytics, natural language processing, computer vision, and autonomous decision-making in supply chain contexts.',
+    attributes: ['Predictive', 'Adaptive', 'Autonomous', 'Scalable'],
+    relationships: ['powers', 'enhances', 'automates'],
+    icon: Brain,
+    color: 'from-purple-500 to-pink-500'
+  },
+  {
+    id: 'blockchain-dlt',
+    name: 'Blockchain & Distributed Ledger',
+    category: 'Trust Infrastructure',
+    definition: 'A decentralized, immutable record of transactions that provides transparency, traceability, and trust without intermediaries. Enables smart contracts and provenance tracking across multi-party supply chains.',
+    attributes: ['Immutable', 'Decentralized', 'Transparent', 'Consensus-based'],
+    relationships: ['secures', 'validates', 'tracks'],
+    icon: Blocks,
+    color: 'from-amber-500 to-orange-500'
+  },
+  {
+    id: 'iot-sensors',
+    name: 'IoT & Sensor Networks',
+    category: 'Data Acquisition',
+    definition: 'Internet-connected devices that collect real-time data on location, temperature, humidity, shock, and other physical parameters throughout the supply chain, enabling visibility and condition monitoring.',
+    attributes: ['Real-time', 'Connected', 'Automated', 'Distributed'],
+    relationships: ['monitors', 'measures', 'transmits'],
+    icon: Radio,
+    color: 'from-green-500 to-emerald-500'
+  },
+  {
+    id: 'digital-twin',
+    name: 'Digital Twin',
+    category: 'Virtual Representation',
+    definition: 'A virtual replica of physical supply chain assets, processes, or systems that enables simulation, optimization, and what-if analysis using real-time data synchronization.',
+    attributes: ['Synchronized', 'Simulated', 'Dynamic', 'Predictive'],
+    relationships: ['mirrors', 'simulates', 'optimizes'],
+    icon: Layers,
+    color: 'from-indigo-500 to-violet-500'
+  },
+  {
+    id: 'smart-contract',
+    name: 'Smart Contracts',
+    category: 'Automation Layer',
+    definition: 'Self-executing contracts with terms directly written into code that automatically enforce agreements, payments, and compliance rules when predefined conditions are met.',
+    attributes: ['Self-executing', 'Deterministic', 'Trustless', 'Programmable'],
+    relationships: ['automates', 'enforces', 'governs'],
+    icon: FileText,
+    color: 'from-rose-500 to-red-500'
+  },
+  {
+    id: 'esg-framework',
+    name: 'ESG Framework',
+    category: 'Sustainability',
+    definition: 'Environmental, Social, and Governance criteria for evaluating supply chain sustainability impact, including carbon footprint, labor practices, ethical sourcing, and regulatory compliance.',
+    attributes: ['Measurable', 'Reportable', 'Standards-based', 'Stakeholder-focused'],
+    relationships: ['measures', 'guides', 'certifies'],
+    icon: Leaf,
+    color: 'from-lime-500 to-green-500'
+  },
+  {
+    id: 'autonomous-agent',
+    name: 'Autonomous Agents',
+    category: 'Intelligence Layer',
+    definition: 'AI-powered software entities that independently perform tasks such as negotiation, procurement, exception handling, and coordination with minimal human intervention while following defined governance rules.',
+    attributes: ['Independent', 'Goal-oriented', 'Collaborative', 'Learning'],
+    relationships: ['negotiates', 'coordinates', 'optimizes'],
+    icon: Bot,
+    color: 'from-cyan-500 to-blue-500'
+  }
+]
+
+// Concept Relationships - How Ideas Connect
+const conceptRelationships = [
+  { source: 'supply-chain', target: 'ai-ml', type: 'powered_by', label: 'Enhanced by' },
+  { source: 'supply-chain', target: 'blockchain-dlt', type: 'secured_by', label: 'Secured via' },
+  { source: 'supply-chain', target: 'iot-sensors', type: 'monitored_by', label: 'Monitored by' },
+  { source: 'ai-ml', target: 'digital-twin', type: 'enables', label: 'Enables' },
+  { source: 'blockchain-dlt', target: 'smart-contract', type: 'executes', label: 'Executes' },
+  { source: 'iot-sensors', target: 'digital-twin', type: 'feeds', label: 'Data feeds' },
+  { source: 'esg-framework', target: 'supply-chain', type: 'governs', label: 'Governs' },
+  { source: 'autonomous-agent', target: 'ai-ml', type: 'built_on', label: 'Built on' },
+  { source: 'autonomous-agent', target: 'smart-contract', type: 'uses', label: 'Utilizes' },
+  { source: 'digital-twin', target: 'esg-framework', type: 'measures', label: 'Measures' }
+]
+
+// Data Provenance Information
+const dataProvenance = [
+  {
+    source: 'Primary Data Sources',
+    items: [
+      { name: 'Enterprise ERP Systems', description: 'SAP, Oracle, Microsoft Dynamics integration via secure APIs', confidence: 98 },
+      { name: 'IoT Sensor Networks', description: 'Real-time telemetry from 2.4M+ connected devices globally', confidence: 95 },
+      { name: 'Partner Data Exchange', description: 'Federated learning network with 500+ supply chain partners', confidence: 92 },
+      { name: 'Market Data Feeds', description: 'Bloomberg, Reuters, IMF, World Bank economic indicators', confidence: 99 }
+    ]
+  },
+  {
+    source: 'Processing Pipeline',
+    items: [
+      { name: 'Data Validation', description: 'Schema validation, anomaly detection, outlier filtering', confidence: 97 },
+      { name: 'AI Enrichment', description: 'NLP extraction, entity resolution, sentiment analysis', confidence: 94 },
+      { name: 'Knowledge Graph', description: 'Semantic mapping, relationship inference, ontology alignment', confidence: 96 },
+      { name: 'Consensus Verification', description: 'PBFT validation across distributed nodes', confidence: 99 }
+    ]
+  },
+  {
+    source: 'Quality Assurance',
+    items: [
+      { name: 'Audit Trails', description: 'Immutable logs of all data transformations and access', confidence: 100 },
+      { name: 'Confidence Scoring', description: 'Probabilistic quality metrics on every data point', confidence: 95 },
+      { name: 'Source Attribution', description: 'Complete lineage from origin to presentation', confidence: 98 },
+      { name: 'Regulatory Compliance', description: 'GDPR, SOX, ISO 27001 certification alignment', confidence: 100 }
+    ]
+  }
+]
+
+// Trust Framework Indicators
+const trustIndicators = [
+  {
+    category: 'Technical Trust',
+    icon: ShieldCheck,
+    items: [
+      { metric: 'Uptime SLA', value: '99.97%', detail: '30-day rolling availability' },
+      { metric: 'Encryption', value: 'AES-256', detail: 'At-rest and in-transit' },
+      { metric: 'Consensus', value: 'PBFT', detail: 'Byzantine fault tolerance' },
+      { metric: 'Recovery', value: '< 5min', detail: 'RTO / RPO guarantees' }
+    ]
+  },
+  {
+    category: 'Data Integrity',
+    icon: Fingerprint,
+    items: [
+      { metric: 'Immutability', value: 'Blockchain', detail: 'Tamper-evident audit trail' },
+      { metric: 'Versioning', value: 'Full', detail: 'Complete change history' },
+      { metric: 'Checksums', value: 'SHA-256', detail: 'Cryptographic verification' },
+      { metric: 'Replication', value: '3x+', detail: 'Geo-distributed redundancy' }
+    ]
+  },
+  {
+    category: 'Organizational Trust',
+    icon: GraduationCap,
+    items: [
+      { metric: 'Certifications', value: 'ISO 27001', detail: 'Information security management' },
+      { metric: 'Audits', value: 'Annual', detail: 'Big 4 financial audits' },
+      { metric: 'Transparency', value: 'Open', detail: 'Public methodology documentation' },
+      { metric: 'Governance', value: 'Board-level', detail: 'Ethics committee oversight' }
+    ]
+  }
+]
+
+// Glossary Terms
+const glossaryTerms = [
+  { term: 'Predictive Analytics', definition: 'Statistical algorithms and machine learning techniques that analyze historical data to forecast future outcomes, enabling proactive supply chain decisions.' },
+  { term: 'Demand Forecasting', definition: 'AI-driven estimation of future customer demand using historical sales patterns, market trends, seasonality, and external factors.' },
+  { term: 'Multi-Echelon Inventory', definition: 'Inventory optimization across multiple supply chain tiers (raw materials, WIP, finished goods) balancing service levels against carrying costs.' },
+  { term: 'Supplier Risk Score', definition: 'Composite metric evaluating supplier financial health, geographic risk, performance history, and ESG compliance in a unified score.' },
+  { term: 'Perfect Order Rate', definition: 'Key performance metric measuring orders delivered on-time, complete, undamaged, and with accurate documentation.' },
+  { term: 'Cash-to-Cash Cycle', definition: 'Time between paying suppliers and receiving payment from customers, indicating working capital efficiency.' },
+  { term: ' Bullwhip Effect', definition: 'Supply chain phenomenon where small fluctuations in retail demand cause amplified volatility upstream.' },
+  { term: 'Control Tower', definition: 'Centralized platform providing end-to-end supply chain visibility, analytics, and orchestration capabilities.' },
+  { term: 'Federated Learning', definition: 'Machine learning approach where models are trained across decentralized data sources without sharing raw data.' },
+  { term: 'Smart Contract Audit', definition: 'Formal verification process ensuring smart contract code is secure, bug-free, and behaves as intended.' },
+  { term: 'Carbon Footprint Tracking', definition: 'Measurement and attribution of greenhouse gas emissions across the entire product lifecycle.' },
+  { term: 'Digital Product Passport', definition: 'EU-mandated digital record containing complete product information, materials, and supply chain history.' }
+]
+
+// Interactive Knowledge Graph Component
+function KnowledgeGraph() {
+  const [activeNode, setActiveNode] = useState<string | null>(null)
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null)
+
+  // Calculate positions for nodes in a circular layout
+  const getNodePosition = (index: number, total: number) => {
+    const angle = (2 * Math.PI * index) / total - Math.PI / 2
+    const radius = 180
+    return {
+      x: 200 + radius * Math.cos(angle),
+      y: 200 + radius * Math.sin(angle)
+    }
+  }
+
+  return (
+    <div className="relative bg-slate-900/50 rounded-2xl p-6 border border-slate-700">
+      <div className="flex items-center gap-3 mb-4">
+        <Atom className="w-6 h-6 text-purple-400" />
+        <h3 className="text-xl font-semibold text-white">Interactive Knowledge Graph</h3>
+      </div>
+      
+      <svg viewBox="0 0 400 400" className="w-full max-w-md mx-auto">
+        {/* Draw relationships first (behind nodes) */}
+        {conceptRelationships.map((rel, idx) => {
+          const sourceIdx = domainConcepts.findIndex(c => c.id === rel.source)
+          const targetIdx = domainConcepts.findIndex(c => c.id === rel.target)
+          const sourcePos = getNodePosition(sourceIdx, domainConcepts.length)
+          const targetPos = getNodePosition(targetIdx, domainConcepts.length)
+          
+          const isActive = activeNode === rel.source || activeNode === rel.target ||
+                          hoveredNode === rel.source || hoveredNode === rel.target
+          
+          return (
+            <g key={idx}>
+              <line
+                x1={sourcePos.x}
+                y1={sourcePos.y}
+                x2={targetPos.x}
+                y2={targetPos.y}
+                stroke={isActive ? '#8b5cf6' : '#475569'}
+                strokeWidth={isActive ? 2 : 1}
+                strokeDasharray={isActive ? 'none' : '5,5'}
+                className="transition-all duration-300"
+              />
+              {(isActive || hoveredNode) && (
+                <text
+                  x={(sourcePos.x + targetPos.x) / 2}
+                  y={(sourcePos.y + targetPos.y) / 2 - 5}
+                  textAnchor="middle"
+                  className="text-xs fill-purple-300 font-medium"
+                >
+                  {rel.label}
+                </text>
+              )}
+            </g>
+          )
+        })}
+        
+        {/* Draw nodes */}
+        {domainConcepts.map((concept, idx) => {
+          const pos = getNodePosition(idx, domainConcepts.length)
+          const isActive = activeNode === concept.id
+          const isHovered = hoveredNode === concept.id
+          const IconComponent = concept.icon
+          
+          return (
+            <g key={concept.id}>
+              <circle
+                cx={pos.x}
+                cy={pos.y}
+                r={isActive ? 35 : isHovered ? 32 : 28}
+                fill={isActive ? '#1e1b4b' : '#334155'}
+                stroke={isActive ? '#8b5cf6' : isHovered ? '#6366f1' : '#475569'}
+                strokeWidth={isActive ? 3 : 2}
+                className="cursor-pointer transition-all duration-300"
+                onClick={() => setActiveNode(isActive ? null : concept.id)}
+                onMouseEnter={() => setHoveredNode(concept.id)}
+                onMouseLeave={() => setHoveredNode(null)}
+              />
+              <foreignObject
+                x={pos.x - 12}
+                y={pos.y - 12}
+                width="24"
+                height="24"
+                className="pointer-events-none"
+              >
+                <IconComponent 
+                  className={`w-6 h-6 ${isActive ? 'text-purple-400' : 'text-slate-300'}`} 
+                />
+              </foreignObject>
+            </g>
+          )
+        })}
+        
+        {/* Center label */}
+        <text x="200" y="195" textAnchor="middle" className="text-sm fill-slate-400 font-medium">
+          AI Supply Chain
+        </text>
+        <text x="200" y="210" textAnchor="middle" className="text-xs fill-slate-500">
+          Ontology
+        </text>
+      </svg>
+      
+      {/* Active node details */}
+      {activeNode && (
+        <div className="mt-4 p-4 bg-purple-900/20 rounded-xl border border-purple-700/50">
+          {(() => {
+            const concept = domainConcepts.find(c => c.id === activeNode)
+            if (!concept) return null
+            const IconComponent = concept.icon
+            return (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg bg-gradient-to-br ${concept.color}`}>
+                    <IconComponent className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-white">{concept.name}</h4>
+                    <span className="text-xs text-purple-300">{concept.category}</span>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-300">{concept.definition}</p>
+                <div className="flex flex-wrap gap-2">
+                  {concept.attributes.map(attr => (
+                    <span key={attr} className="px-2 py-1 bg-slate-700 rounded-full text-xs text-gray-300">
+                      {attr}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
+        </div>
+      )}
+      
+      <p className="mt-4 text-center text-sm text-gray-400">
+        Click any node to explore its definition and relationships
+      </p>
+    </div>
+  )
+}
+
+// Main Ontology Section Component
+const OntologyKnowledgeSection = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [expandedProvenance, setExpandedProvenance] = useState<number | null>(null)
+
+  const filteredTerms = glossaryTerms.filter(term =>
+    term.term.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    term.definition.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  const filteredConcepts = selectedCategory === 'all' 
+    ? domainConcepts 
+    : domainConcepts.filter(c => c.category === selectedCategory)
+
+  const categories = ['all', ...new Set(domainConcepts.map(c => c.category))]
+
+  return (
+    <div className="space-y-8">
+      {/* Header with Purpose Statement */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-purple-900/40 via-indigo-900/40 to-blue-900/40 rounded-2xl p-8 border border-purple-700/30">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl"></div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl">
+              <GraduationCap className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold text-white">Knowledge Ontology System</h2>
+              <p className="text-purple-200">Semantic Foundation for Understanding AI Supply Chain Intelligence</p>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-4 mt-6">
+            <div className="bg-slate-900/60 backdrop-blur rounded-xl p-4 border border-slate-700">
+              <div className="flex items-center gap-2 mb-2">
+                <Lightbulb className="w-5 h-5 text-yellow-400" />
+                <span className="font-medium text-white">Purpose</span>
+              </div>
+              <p className="text-sm text-gray-300">Provide clear, structured understanding of all concepts, data flows, and relationships presented in this dashboard.</p>
+            </div>
+            
+            <div className="bg-slate-900/60 backdrop-blur rounded-xl p-4 border border-slate-700">
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldCheck className="w-5 h-5 text-green-400" />
+                <span className="font-medium text-white">Trust</span>
+              </div>
+              <p className="text-sm text-gray-300">Build confidence through transparent data provenance, quality metrics, and verifiable claims.</p>
+            </div>
+            
+            <div className="bg-slate-900/60 backdrop-blur rounded-xl p-4 border border-slate-700">
+              <div className="flex items-center gap-2 mb-2">
+                <Link className="w-5 h-5 text-cyan-400" />
+                <span className="font-medium text-white">Clarity</span>
+              </div>
+              <p className="text-sm text-gray-300">Connect ideas visually so you understand how each component relates to the whole system.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Interactive Knowledge Graph */}
+      <section>
+        <KnowledgeGraph />
+      </section>
+
+      {/* Core Domain Concepts Grid */}
+      <section>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <FolderTree className="w-6 h-6 text-blue-400" />
+            <h3 className="text-2xl font-bold text-white">Core Domain Concepts</h3>
+          </div>
+          
+          <div className="flex gap-2 flex-wrap">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3 py-1 rounded-full text-sm transition-all ${
+                  selectedCategory === cat
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                }`}
+              >
+                {cat === 'all' ? 'All Concepts' : cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {filteredConcepts.map(concept => {
+            const IconComponent = concept.icon
+            return (
+              <div
+                key={concept.id}
+                className="group bg-slate-800/50 rounded-xl p-5 border border-slate-700 hover:border-purple-500/50 transition-all hover:shadow-lg hover:shadow-purple-500/10"
+              >
+                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${concept.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <IconComponent className="w-6 h-6 text-white" />
+                </div>
+                
+                <h4 className="font-semibold text-white mb-1">{concept.name}</h4>
+                <span className="text-xs text-purple-300 mb-3 block">{concept.category}</span>
+                
+                <p className="text-sm text-gray-400 line-clamp-3 mb-3">{concept.definition}</p>
+                
+                <div className="flex flex-wrap gap-1">
+                  {concept.attributes.slice(0, 3).map(attr => (
+                    <span key={attr} className="px-2 py-0.5 bg-slate-700/50 rounded text-xs text-gray-400">
+                      {attr}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* Data Provenance - Where Data Comes From */}
+      <section className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700">
+        <div className="flex items-center gap-3 mb-6">
+          <Fingerprint className="w-6 h-6 text-amber-400" />
+          <div>
+            <h3 className="text-2xl font-bold text-white">Data Provenance & Lineage</h3>
+            <p className="text-sm text-gray-400">Complete transparency into data origins, processing, and quality assurance</p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {dataProvenance.map((category, idx) => (
+            <div key={idx} className="bg-slate-900/50 rounded-xl overflow-hidden border border-slate-700">
+              <div 
+                className="p-4 bg-gradient-to-r from-slate-800 to-slate-800/50 cursor-pointer flex items-center justify-between"
+                onClick={() => setExpandedProvenance(expandedProvenance === idx ? null : idx)}
+              >
+                <h4 className="font-semibold text-white">{category.source}</h4>
+                <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${expandedProvenance === idx ? 'rotate-180' : ''}`} />
+              </div>
+              
+              <div className={`transition-all duration-300 ${expandedProvenance === idx ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
+                <div className="p-4 space-y-3">
+                  {category.items.map((item, itemIdx) => (
+                    <div key={itemIdx} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-white">{item.name}</span>
+                        <span className="text-xs px-2 py-0.5 bg-green-900/30 text-green-400 rounded-full">
+                          {item.confidence}% Confidence
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-400">{item.description}</p>
+                      <div className="w-full bg-slate-700 rounded-full h-1.5">
+                        <div 
+                          className="bg-gradient-to-r from-green-500 to-emerald-400 h-1.5 rounded-full transition-all"
+                          style={{ width: `${item.confidence}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {expandedProvenance !== idx && (
+                <div className="px-4 pb-3">
+                  <div className="flex gap-1">
+                    {category.items.map((item, itemIdx) => (
+                      <div key={itemIdx} className="flex-1 h-1 bg-slate-700 rounded-full overflow-hidden">
+                        <div 
+                          className="bg-gradient-to-r from-amber-500 to-orange-400 h-full rounded-full"
+                          style={{ width: `${item.confidence}%` }}
+                        ></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6 p-4 bg-amber-900/10 rounded-xl border border-amber-700/30">
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 text-amber-400 mt-0.5" />
+            <div>
+              <p className="text-sm text-amber-200">
+                <strong>Data Freshness:</strong> All data points are updated in real-time with timestamps. 
+                Predictive models are retrained every 6 hours with latest training data indicated on each forecast.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Framework - Why You Can Believe What You See */}
+      <section className="bg-gradient-to-b from-slate-800/50 to-slate-900/50 rounded-2xl p-6 border border-slate-700">
+        <div className="flex items-center gap-3 mb-6">
+          <ShieldCheck className="w-6 h-6 text-green-400" />
+          <div>
+            <h3 className="text-2xl font-bold text-white">Trust & Verification Framework</h3>
+            <p className="text-sm text-gray-400">Multi-layered assurance system ensuring data integrity and reliability</p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {trustIndicators.map((category, idx) => {
+            const IconComponent = category.icon
+            return (
+              <div key={idx} className="bg-slate-900/70 rounded-xl p-5 border border-slate-700">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-green-900/30 rounded-lg">
+                    <IconComponent className="w-5 h-5 text-green-400" />
+                  </div>
+                  <h4 className="font-semibold text-white">{category.category}</h4>
+                </div>
+                
+                <div className="space-y-3">
+                  {category.items.map((item, itemIdx) => (
+                    <div key={itemIdx} className="flex items-start justify-between">
+                      <div>
+                        <span className="text-sm text-gray-300 block">{item.metric}</span>
+                        <span className="text-xs text-gray-500">{item.detail}</span>
+                      </div>
+                      <span className="text-sm font-mono font-bold text-green-400">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Certification Badges */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-4 pt-6 border-t border-slate-700">
+          {['ISO 27001 Certified', 'SOC 2 Type II', 'GDPR Compliant', 'Blockchain Verified'].map(badge => (
+            <div key={badge} className="flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-full border border-slate-600">
+              <CheckCircle2 className="w-4 h-4 text-green-400" />
+              <span className="text-sm text-gray-300">{badge}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Interactive Glossary */}
+      <section className="bg-slate-800/30 rounded-2xl p-6 border border-slate-700">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <BookOpen className="w-6 h-6 text-cyan-400" />
+            <div>
+              <h3 className="text-2xl font-bold text-white">Domain Glossary</h3>
+              <p className="text-sm text-gray-400">Searchable definitions for all technical and business terms</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search for a term or definition..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
+          {searchTerm && (
+            <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xs text-gray-400">
+              {filteredTerms.length} results
+            </span>
+          )}
+        </div>
+
+        {/* Glossary Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredTerms.map((term, idx) => (
+            <div
+              key={idx}
+              className="group p-4 bg-slate-900/50 rounded-xl border border-slate-700 hover:border-cyan-500/30 transition-all"
+            >
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 bg-cyan-900/30 rounded-lg mt-0.5">
+                  <MagicWand className="w-4 h-4 text-cyan-400" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-white group-hover:text-cyan-300 transition-colors">
+                    {term.term}
+                  </h4>
+                  <p className="text-sm text-gray-400 mt-1 leading-relaxed">
+                    {term.definition}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredTerms.length === 0 && (
+          <div className="text-center py-12">
+            <CircleHelp className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+            <p className="text-gray-400">No terms found matching "{searchTerm}"</p>
+            <p className="text-sm text-gray-500 mt-1">Try a different search term</p>
+          </div>
+        )}
+      </section>
+
+      {/* System Architecture Overview */}
+      <section className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl p-6 border border-slate-700">
+        <div className="flex items-center gap-3 mb-6">
+          <Network className="w-6 h-6 text-indigo-400" />
+          <div>
+            <h3 className="text-2xl font-bold text-white">System Architecture & Data Flow</h3>
+            <p className="text-sm text-gray-400">How components interact to deliver intelligence</p>
+          </div>
+        </div>
+
+        <div className="relative bg-slate-900/50 rounded-xl p-6 overflow-hidden">
+          {/* Architecture Diagram */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+            {/* Data Sources */}
+            <div className="space-y-2">
+              <div className="text-center text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Data Sources</div>
+              {['ERP Systems', 'IoT Devices', 'Market Feeds', 'Partner APIs'].map(source => (
+                <div key={source} className="p-2 bg-blue-900/20 border border-blue-700/30 rounded-lg text-center text-sm text-blue-300">
+                  {source}
+                </div>
+              ))}
+            </div>
+
+            {/* Arrow */}
+            <div className="hidden md:flex items-center justify-center">
+              <ArrowRight className="w-8 h-8 text-gray-600" />
+            </div>
+
+            {/* Processing Layer */}
+            <div className="space-y-2">
+              <div className="text-center text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Processing</div>
+              <div className="p-3 bg-purple-900/20 border border-purple-700/30 rounded-lg space-y-2">
+                {['Validation', 'AI Enrichment', 'Graph Mapping'].map(proc => (
+                  <div key={proc} className="text-sm text-purple-300 text-center">{proc}</div>
+                ))}
+              </div>
+            </div>
+
+            {/* Arrow */}
+            <div className="hidden md:flex items-center justify-center">
+              <ArrowRight className="w-8 h-8 text-gray-600" />
+            </div>
+
+            {/* Output Layer */}
+            <div className="space-y-2">
+              <div className="text-center text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Intelligence Output</div>
+              <div className="p-3 bg-green-900/20 border border-green-700/30 rounded-lg space-y-2">
+                {['Dashboards', 'Alerts', 'Forecasts', 'Actions'].map(output => (
+                  <div key={output} className="text-sm text-green-300 text-center">{output}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Feedback Loop */}
+          <div className="mt-6 pt-4 border-t border-slate-700">
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
+              <RefreshCcw className="w-4 h-4" />
+              <span>Continuous feedback loop improves model accuracy over time</span>
+              <Sparkles className="w-4 h-4 text-purple-400" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why This Matters - Value Proposition */}
+      <section className="bg-gradient-to-r from-purple-900/30 via-indigo-900/30 to-blue-900/30 rounded-2xl p-6 border border-purple-700/30">
+        <div className="text-center mb-6">
+          <h3 className="text-2xl font-bold text-white mb-2">Why Ontology Matters for Your Business</h3>
+          <p className="text-gray-300">Understanding the semantic foundation helps you make better decisions</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            {
+              title: 'Reduced Ambiguity',
+              description: 'Clear definitions eliminate miscommunication between teams and partners',
+              icon: CheckCircle2,
+              color: 'text-green-400'
+            },
+            {
+              title: 'Faster Onboarding',
+              description: 'New team members quickly understand the domain and data relationships',
+              icon: GraduationCap,
+              color: 'text-blue-400'
+            },
+            {
+              title: 'Better Decisions',
+              description: 'Understanding data provenance builds confidence in actionable insights',
+              icon: TrendingUp,
+              color: 'text-purple-400'
+            },
+            {
+              title: 'Easier Integration',
+              description: 'Well-defined concepts enable seamless system interoperability',
+              icon: Plug,
+              color: 'text-amber-400'
+            }
+          ].map((benefit, idx) => {
+            const IconComponent = benefit.icon
+            return (
+              <div key={idx} className="bg-slate-900/50 rounded-xl p-5 border border-slate-700 text-center">
+                <IconComponent className={`w-10 h-10 mx-auto mb-3 ${benefit.color}`} />
+                <h4 className="font-semibold text-white mb-2">{benefit.title}</h4>
+                <p className="text-sm text-gray-400">{benefit.description}</p>
+              </div>
+            )
+          })}
+        </div>
+      </section>
     </div>
   )
 }
